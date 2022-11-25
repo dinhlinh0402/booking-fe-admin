@@ -1,0 +1,25 @@
+.header-customer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .search-customer {
+    width: 300px;
+  }
+  
+  .list-button {
+    .button {
+      border-radius: 10px;
+      margin-left: 10px;
+    }
+  }
+}
+
+.three_dot {
+    display: inline-block;
+    width: 160px;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}

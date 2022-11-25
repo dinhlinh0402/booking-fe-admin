@@ -1,0 +1,17 @@
+.header_doctor {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .search_doctor {
+    width: 300px;
+  }
+  
+  .list_button {
+    .button {
+      border-radius: 10px;
+      margin-left: 10px;
+    }
+  }
+}
