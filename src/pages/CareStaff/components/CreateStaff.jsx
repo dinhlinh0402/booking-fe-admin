@@ -2,8 +2,8 @@ import { Button, Col, DatePicker, Form, Input, Modal, Spin, Row, Select } from '
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import './CreateStaff.scss';
-import CustomerApis from '../../../apis/Customer';
 import { toast } from 'react-toastify';
+import CareStaffApis from '../../../apis/CareStaff';
 
 const { Option } = Select;
 const listGender = [
@@ -28,26 +28,26 @@ const CreateStaff = ({
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const handleAddNewStaff = async (value) => {
-    // try {
-    //   setLoading(true)
-    //   const dataRes = await CustomerApis.createCustomer({
-    //     ...value,
-    //     role: 'USER',
-    //   })
-    //   // 
-    //   if (dataRes.status === 200) {
-    //     setLoading(false);
-    //     toast.success('Thêm khách hàng thành công');
-    //     handleCancelModal();
-    //   }
-    // } catch (error) {
-    //   setLoading(false);
-    //   if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
-    //     toast.error('Khách hàng đã tồn tại!');
-    //   }
-    // toast.error('Lỗi');
+    try {
+      setLoading(true)
+      const dataRes = await CareStaffApis.createCareStaff({
+        ...value,
+        role: 'ADMIN',
+      })
+      // 
+      if (dataRes.status === 200) {
+        setLoading(false);
+        toast.success('Thêm nhân viên thành công');
+        handleCancelModal();
+      }
+    } catch (error) {
+      setLoading(false);
+      if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
+        toast.error('Nhân viên đã tồn tại!');
+      }
+      toast.error('Lỗi');
+    }
   }
-  // }
 
   return (
     <Modal
@@ -243,7 +243,7 @@ const CreateStaff = ({
             </Button>
             {type === 'create' ? (
               <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
-                Thêm khách hàng
+                Thêm nhân viên
               </Button>
             ) : (
               <Button className='btn_add' size='middle' htmlType='submit' type='primary'>

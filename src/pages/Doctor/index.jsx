@@ -1,8 +1,36 @@
-import { FilterOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Input, Table } from 'antd';
+import { DownOutlined, FilterOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Dropdown, Input, Space, Table } from 'antd';
 import React, { useRef, useState } from 'react';
+import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
+import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
 import CreateDoctor from './components/CreateDoctor';
 import './index.scss';
+
+const listRole = [
+  {
+    key: 'HEAD_OF_DOCTOR',
+    name: 'Trưởng khoa'
+  },
+  {
+    key: 'DOCTOR',
+    name: 'Bác sĩ'
+  },
+  {
+    key: 'MANAGER_CLINIC',
+    name: 'Quản lý phòng khám'
+  }
+]
+
+const listStatus = [
+  {
+    key: 0,
+    name: 'Khoá'
+  },
+  {
+    key: 1,
+    name: 'Kích hoạt'
+  },
+]
 
 const Doctor = () => {
 
@@ -13,7 +41,18 @@ const Doctor = () => {
     page: 1,
     pageSize: 10,
   });
-  const [isModalCreate, setModalCreate] = useState(true);
+  const [isModalCreate, setModalCreate] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [plainOptions, setPlainOptions] = useState({
+
+  })
+  const [checkedList, setCheckedList] = useState({
+    role: [],
+    status: [],
+    clinic: [],
+    specialty: [],
+  })
+
 
   const columns = [
     {
@@ -88,6 +127,20 @@ const Doctor = () => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
+  const handleCheck = (key, value) => {
+    setCheckedList({
+      ...checkedList,
+      [key]: value,
+    });
+  };
+
+  const handleCheckAll = (key, value) => {
+    setCheckedList({
+      ...checkedList,
+      [key]: value,
+    });
+  };
+
   const handleSearch = (e) => {
     if (typingSearch.current) {
       clearTimeout(typingSearch.current);
@@ -97,20 +150,53 @@ const Doctor = () => {
     }, 500)
   }
 
+
+  const items = [
+    {
+      label: <a href="https://www.antgroup.com">1st menu item</a>,
+      key: '0',
+    },
+    {
+      label: <a href="https://www.aliyun.com">2nd menu item</a>,
+      key: '1',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: '3rd menu item',
+      key: '3',
+    },
+  ];
+
   return (
     <div>
       <h1>Danh sách bác sĩ</h1>
 
       <div className="header_doctor">
-        <Input
-          className='search_doctor'
-          size="large"
-          placeholder="Tìm kiếm"
-          suffix={<SearchOutlined />}
-        // onChange={(e) => handleSearch(e)}
-        />
+        <Space>
+          <Button
+            id={'btn__filter'}
+            icon={
+              <FilterIcon
+                style={{
+                  transform: 'translateY(2px)',
+                  fill: `${showFilter ? '#3863EF' : 'none'}`,
+                }}
+              />
+            }
+            onClick={() => setShowFilter(!showFilter)}
+          />
+          <Input
+            className='search_doctor'
+            size="large"
+            placeholder="Tìm kiếm"
+            suffix={<SearchOutlined />}
+          // onChange={(e) => handleSearch(e)}
+          />
+        </Space>
+
         <div className='list_button'>
-          <Button className='button' size="large" icon={<FilterOutlined />}>Lọc</Button>
           <Button
             className='button'
             size="large"
@@ -122,6 +208,58 @@ const Doctor = () => {
           </Button>
         </div>
       </div>
+
+      {/* Bộ lọc */}
+      {showFilter && (
+        <Space
+          size={24}
+          style={{ marginTop: '10px', marginBottom: '20px', color: 'rgba(17, 17, 17, 0.45)' }}
+        >
+          <FilterObjDropDown
+            displayName={'Trạng thái'}
+            placeholder={'Trạng thái'}
+            placeholderSearch={false}
+            plainOptions={listStatus || []}
+            checkedList={checkedList.status}
+            keyFilter={'status'}
+            handleCheckAll={handleCheckAll}
+            handleCheck={handleCheck}
+          />
+          <FilterObjDropDown
+            displayName={'Vai trò'}
+            placeholder={'Vai trò'}
+            placeholderSearch={false}
+            plainOptions={listRole || []}
+            checkedList={checkedList.role}
+            keyFilter={'role'}
+            handleCheckAll={handleCheckAll}
+            handleCheck={handleCheck}
+          />
+
+          <FilterObjDropDown
+            displayName={'Phòng khám'}
+            placeholder={'Phòng khám'}
+            placeholderSearch={false}
+            plainOptions={listRole || []}
+            checkedList={checkedList.clinic}
+            keyFilter={'clinic'}
+            handleCheckAll={handleCheckAll}
+            handleCheck={handleCheck}
+          />
+
+          <FilterObjDropDown
+            displayName={'Chuyên khoa'}
+            placeholder={'Chuyên khoa'}
+            placeholderSearch={false}
+            plainOptions={listRole || []}
+            checkedList={checkedList.specialty}
+            keyFilter={'specialty'}
+            handleCheckAll={handleCheckAll}
+            handleCheck={handleCheck}
+          />
+
+        </Space>
+      )}
 
       <Table
         // loading={isLoading}

@@ -33,22 +33,23 @@ const Customer = () => {
         role: 'USER'
       });
       if (dataRes?.data?.data.length) {
-        setLoading(false);
+
         const listUser = dataRes?.data?.data.map(item => {
           const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
           return {
-            id: item.id,
-            name: name,
-            email: item.email,
-            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác',
-            phoneNumber: item.phoneNumber,
-            count: 0,
-            address: item.address,
-            identityCardNumber: item.identityCardNumber,
+            id: item.id || '',
+            name: name || '',
+            email: item.email || '',
+            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
+            phoneNumber: item.phoneNumber || '',
+            count: 0 || '',
+            address: item.address || '',
+            identityCardNumber: item.identityCardNumber || '',
           }
         })
         setListUser(listUser || []);
         setDataRes(dataRes?.data ? dataRes?.data : {});
+        setLoading(false);
       }
     } catch (error) {
       console.log(error);
