@@ -3,7 +3,7 @@ import { Alert, Button, Input, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import CreateStaff from './components/CreateStaff';
 import './index.scss';
-import CareStaffApis from '../../apis/CareStaff';
+import CareStaffApis from '../../apis/CareStaff/index';
 import moment from 'moment';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
 

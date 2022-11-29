@@ -1,10 +1,12 @@
 import { DownOutlined, FilterOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Input, Space, Table } from 'antd';
-import React, { useRef, useState } from 'react';
+import { Button, Card, Dropdown, Input, Space, Switch, Table } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
 import CreateDoctor from './components/CreateDoctor';
 import './index.scss';
+import DoctorApis from '../../apis/Doctor';
+import moment from 'moment';
 
 const listRole = [
   {
@@ -20,6 +22,12 @@ const listRole = [
     name: 'Quản lý phòng khám'
   }
 ]
+
+const role = {
+  HEAD_OF_DOCTOR: 'Trưởng khoa',
+  DOCTOR: 'Bác sĩ',
+  MANAGER_CLINIC: 'Quản lý phòng khám',
+}
 
 const listStatus = [
   {
@@ -43,24 +51,79 @@ const Doctor = () => {
   });
   const [isModalCreate, setModalCreate] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [plainOptions, setPlainOptions] = useState({
-
-  })
+  const [loading, setLoading] = useState(false);
+  const [plainOptions, setPlainOptions] = useState({})
   const [checkedList, setCheckedList] = useState({
     role: [],
     status: [],
     clinic: [],
     specialty: [],
   })
+  const [listDoctor, setListDoctor] = useState([]);
+  const [dataResponse, setDataResponse] = useState({});
 
+  useEffect(() => {
+    getListDoctor();
+  }, [checkedList, pagination, isModalCreate])
+
+
+  const getListDoctor = async () => {
+    try {
+      setLoading(true);
+      const dataRes = await DoctorApis.getListDoctor({
+        page: pagination.page,
+        take: pagination.pageSize,
+        name: search || undefined,
+        role: ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'] // 
+      })
+      console.log('dataRes: ', dataRes);
+      if (dataRes?.data?.data?.length) {
+        const { data } = dataRes?.data;
+        const listDoctor = data.map(item => {
+          console.log('birthday: ', item.birthday);
+          const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
+          return {
+            id: item.id,
+            status: item.status,
+            name: name,
+            email: item.email || '',
+            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
+            birthday: item.birthday ? moment(item.birthday).format('DD/MM/YYYY') : '',
+            phoneNumber: item.phoneNumber || '',
+            role: item.role ? role[item.role] : '',
+            clinic: item.clinic ? item.clinic.name : '',
+            specialty: item.specialty ? item.specialty.name : '',
+          }
+        })
+        setListDoctor(listDoctor || []);
+        setDataResponse(dataRes?.data ? dataRes?.data : {});
+        setLoading(false)
+      }
+    } catch (error) {
+      console.log('erroe: ', error);
+      setLoading(false);
+    }
+  }
 
   const columns = [
     {
+
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      ellipsis: true,
       width: 50,
+      align: 'center',
+      render: (_, record) => (
+        <Switch
+          checked={record?.status === true}
+        // onChange={() =>
+        //   mutationUpdateLabel.mutate({
+        //     enable: record.enable === 1 ? 0 : 1,
+        //     label_id: record?.id,
+        //   })
+        // }
+        />
+      ),
       fixed: true,
     },
     {
@@ -108,8 +171,8 @@ const Doctor = () => {
     },
     {
       title: 'Tên phòng khám',
-      dataIndex: 'clinicName',
-      key: 'clinicName',
+      dataIndex: 'clinic',
+      key: 'clinic',
       ellipsis: true,
       width: 100,
     },
@@ -149,25 +212,6 @@ const Doctor = () => {
       setSearch(e.target.value);
     }, 500)
   }
-
-
-  const items = [
-    {
-      label: <a href="https://www.antgroup.com">1st menu item</a>,
-      key: '0',
-    },
-    {
-      label: <a href="https://www.aliyun.com">2nd menu item</a>,
-      key: '1',
-    },
-    {
-      type: 'divider',
-    },
-    {
-      label: '3rd menu item',
-      key: '3',
-    },
-  ];
 
   return (
     <div>
@@ -262,18 +306,18 @@ const Doctor = () => {
       )}
 
       <Table
-        // loading={isLoading}
+        loading={loading}
         rowKey={'id'}
-        // dataSource={listUser}
+        dataSource={listDoctor}
         columns={columns}
         rowSelection={{
           selectedRowKeys,
           onChange: onSelectChange
         }}
         pagination={{
-          current: 1, // so trang
-          total: 10, // tong tat ca 
-          defaultPageSize: 10,
+          current: dataResponse?.meta?.page || 2, // so trang
+          total: dataResponse?.meta?.itemCount || 10, // tong tat ca 
+          defaultPageSize: dataResponse?.meta?.take || 10,
           showSizeChanger: true,
           pageSizeOptions: ['10', '20', '50', '100'],
           locale: { items_per_page: ' kết quả/trang' },

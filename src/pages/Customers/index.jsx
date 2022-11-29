@@ -53,6 +53,7 @@ const Customer = () => {
       }
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   }
 
