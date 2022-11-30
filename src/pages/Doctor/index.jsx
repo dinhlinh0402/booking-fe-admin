@@ -1,5 +1,5 @@
-import { DownOutlined, FilterOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Input, Space, Switch, Table } from 'antd';
+import { DownOutlined, FilterOutlined, LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Dropdown, Input, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
@@ -7,6 +7,7 @@ import CreateDoctor from './components/CreateDoctor';
 import './index.scss';
 import DoctorApis from '../../apis/Doctor';
 import moment from 'moment';
+import Stroke from '../../components/Icon/CareStaff/Stoke';
 
 const listRole = [
   {
@@ -49,7 +50,7 @@ const Doctor = () => {
     page: 1,
     pageSize: 10,
   });
-  const [isModalCreate, setModalCreate] = useState(false);
+  const [isModalCreate, setModalCreate] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(false);
   const [plainOptions, setPlainOptions] = useState({})
@@ -61,9 +62,10 @@ const Doctor = () => {
   })
   const [listDoctor, setListDoctor] = useState([]);
   const [dataResponse, setDataResponse] = useState({});
+  const [showBtn, setShowBtn] = useState([]);
 
   useEffect(() => {
-    getListDoctor();
+    !isModalCreate && getListDoctor();
   }, [checkedList, pagination, isModalCreate])
 
 
@@ -76,11 +78,9 @@ const Doctor = () => {
         name: search || undefined,
         role: ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'] // 
       })
-      console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data?.length) {
         const { data } = dataRes?.data;
         const listDoctor = data.map(item => {
-          console.log('birthday: ', item.birthday);
           const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
           return {
             id: item.id,
@@ -104,6 +104,49 @@ const Doctor = () => {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    const checkShow = [];
+    selectedRowKeys.forEach((item) => {
+      const label = listDoctor?.find((elm) => elm.id === item);
+      if (label) checkShow.push(label);
+    });
+    const btnArray = [];
+    if (checkShow.some((item) => item.status === true)) {
+      btnArray.push(
+        <Button
+          className='btn__active'
+          icon={<LockOutlined style={{ transform: 'translateY(-1px)' }} />}
+        // onClick={() => {
+        //   mutationActionLabel.mutate({
+        //     type: TypeActionLabel.ENABLE_HIDE_ALL,
+        //     labelIds: selectedRowKeysPriority,
+        //   });
+        // }}
+        >
+          <span className='ml_8'>Khoá tất cả</span>
+        </Button>,
+      );
+    }
+    if (checkShow.some((item) => item.status === false)) {
+      btnArray.push(
+        <Button
+          className='btn_active'
+          icon={<UnlockOutlined style={{ transform: 'translateY(-1px)' }} />}
+        // onClick={() => {
+        //   mutationActionLabel.mutate({
+        //     type: TypeActionLabel.ENABLE_SHOW_ALL,
+        //     labelIds: selectedRowKeysPriority,
+        //   });
+        // }}
+        >
+          <span className='ml_8'>Mở tất cả</span>
+        </Button>,
+      );
+    }
+
+    setShowBtn([...btnArray]);
+  }, [selectedRowKeys]);
 
   const columns = [
     {
@@ -303,6 +346,32 @@ const Doctor = () => {
           />
 
         </Space>
+      )}
+
+      {selectedRowKeys.length > 0 && (
+        <Alert
+          className='fontSizeAlert'
+          message={
+            <div>
+              <Space>
+                <span>Đã chọn: {selectedRowKeys.length}</span>
+
+                {showBtn}
+
+                <Button
+                  className='btn_active'
+                  icon={<Stroke className='transformY_2' />}
+                // onClick={() => {
+                //   setShowModalDelete(true);
+                //   setDeleteLabelIds(selectedRowKeys);
+                // }}
+                >
+                  <span className='ml_8'>Xóa</span>
+                </Button>
+              </Space>
+            </div>
+          }
+        />
       )}
 
       <Table

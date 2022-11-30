@@ -3,6 +3,8 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import './CreateDoctor.scss';
 import { toast } from 'react-toastify';
+import ClinicApis from '../../../apis/Clinic';
+import SpecialtyApis from '../../../apis/Specialty';
 
 const { Option } = Select;
 const listGender = [
@@ -40,8 +42,39 @@ const CreateDoctor = ({
   handleCancelModal, // function cancel
 }) => {
   const [loading, setLoading] = useState(false);
+  const [optionsClinic, setOptionsClinic] = useState([]);
+  const [optionsSpecialty, setOptionsSpecialty] = useState([]);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+
+    !!isShowModal && getListClinic();
+  }, [isShowModal])
+
+  const getListClinic = async () => {
+    try {
+      const dataRes = await ClinicApis.getClinics({
+        pages: 1,
+        take: 100,
+      })
+      // console.log('dataRes: ', dataRes);
+      if (dataRes?.data?.data) {
+        const { data } = dataRes?.data;
+        const listOptionsClinic = data.map(item => {
+          return {
+            id: item.id,
+            name: item?.name || '',
+          }
+        })
+        setOptionsClinic(listOptionsClinic || []);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+
+    }
+  }
   const handleAddNewDoctor = async (value) => {
+    console.log('value: ', value);
     // try {
     //   setLoading(true)
     //   const dataRes = await CustomerApis.createCustomer({
@@ -62,6 +95,35 @@ const CreateDoctor = ({
     //   // toast.error('Lỗi');
     // }
   }
+
+  const handleChangSelectClinic = async (value) => {
+    try {
+      const dataSpecialty = await SpecialtyApis.getSpecialtyByClinic(value);
+      if (dataSpecialty?.data?.data?.length > 0) {
+        const { data } = dataSpecialty?.data;
+        const listSpecialty = data?.map(item => {
+          return {
+            id: item.id,
+            name: item.name,
+          }
+        })
+
+        setOptionsSpecialty(listSpecialty || [])
+      } else if (dataSpecialty?.data?.data?.length === 0) {
+        setOptionsSpecialty([]);
+        form.setFieldsValue({
+          specialtyId: undefined
+        })
+      }
+    } catch (error) {
+      // console.log('error: ', error);
+      setOptionsSpecialty([]);
+      form.setFieldsValue({
+        specialtyId: undefined
+      })
+    }
+  }
+
 
   return (
     <Modal
@@ -248,21 +310,33 @@ const CreateDoctor = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Giới tính không được để trống',
+                    message: 'Phòng khám không được để trống',
                   },
                 ]}
               >
                 <Select
+                  showSearch
                   style={{ width: '100%' }}
                   size='middle'
                   placeholder={true ? 'Chọn phòng khám' : 'Không có thông tin'}
                   className='txt_input'
+                  // optionLabelProp='label'
+                  // optionFilterProp={'label'}
+                  filterOption={(input, option) =>
+                    option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
+                  }
+                  onChange={handleChangSelectClinic}
                 >
-                  {/* {listRole.map((item, index) => (
-                    <Option key={index} value={item.key}>
-                      {item.value}
+                  {optionsClinic.length && optionsClinic.map((item) => (
+                    <Option
+                      key={item.id}
+                      value={item.id || ''}
+                      label={item.name}
+                    >
+                      {item.name}
                     </Option>
-                  ))} */}
+
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -270,24 +344,28 @@ const CreateDoctor = ({
               <Form.Item
                 name={'specialtyId'}
                 label={<span className='txt_label'>Chuyên khoa</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Giới tính không được để trống',
-                  },
-                ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: 'Giới tính không được để trống',
+              //   },
+              // ]}
               >
                 <Select
+                  showSearch
                   style={{ width: '100%' }}
                   size='middle'
                   placeholder={true ? 'Chọn chuyên khoa' : 'Không có thông tin'}
                   className='txt_input'
+                  filterOption={(input, option) =>
+                    option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
+                  }
                 >
-                  {/* {listRole.map((item, index) => (
-                    <Option key={index} value={item.key}>
-                      {item.value}
+                  {optionsSpecialty.length && optionsSpecialty.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
                     </Option>
-                  ))} */}
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -302,7 +380,7 @@ const CreateDoctor = ({
           </Col>
         </Form>
       </Spin>
-    </Modal>
+    </Modal >
   )
 }
 
