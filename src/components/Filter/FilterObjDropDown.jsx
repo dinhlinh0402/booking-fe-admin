@@ -86,7 +86,7 @@ const FilterObjDropDown = ({
                   <Fragment key={`check_boc_item_${index}`}>
                     <Checkbox
                       className={`${checkAll ? 'check__item' : 'style_check__noAll'}`}
-                      value={i.key}
+                      value={i.id}
                     >
                       {i.name}
                     </Checkbox>

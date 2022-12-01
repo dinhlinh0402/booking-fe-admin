@@ -8,18 +8,20 @@ import './index.scss';
 import DoctorApis from '../../apis/Doctor';
 import moment from 'moment';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
+import ClinicApis from '../../apis/Clinic';
+import SpecialtyApis from '../../apis/Specialty';
 
 const listRole = [
   {
-    key: 'HEAD_OF_DOCTOR',
+    id: 'HEAD_OF_DOCTOR',
     name: 'Trưởng khoa'
   },
   {
-    key: 'DOCTOR',
+    id: 'DOCTOR',
     name: 'Bác sĩ'
   },
   {
-    key: 'MANAGER_CLINIC',
+    id: 'MANAGER_CLINIC',
     name: 'Quản lý phòng khám'
   }
 ]
@@ -32,11 +34,11 @@ const role = {
 
 const listStatus = [
   {
-    key: 0,
+    id: 0,
     name: 'Khoá'
   },
   {
-    key: 1,
+    id: 1,
     name: 'Kích hoạt'
   },
 ]
@@ -50,10 +52,11 @@ const Doctor = () => {
     page: 1,
     pageSize: 10,
   });
-  const [isModalCreate, setModalCreate] = useState(true);
+  const [isModalCreate, setModalCreate] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [plainOptions, setPlainOptions] = useState({})
+  const [listClinic, setListClinic] = useState([]);
+  const [listSpecialty, setListSpecialty] = useState([]);
   const [checkedList, setCheckedList] = useState({
     role: [],
     status: [],
@@ -76,9 +79,12 @@ const Doctor = () => {
         page: pagination.page,
         take: pagination.pageSize,
         name: search || undefined,
-        role: ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'] // 
+        status: checkedList.status || undefined,
+        role: checkedList.role.length ? checkedList.role : ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'],
+        clinicIds: checkedList.clinic || undefined,
+        specialtyIds: checkedList.specialty || undefined,
       })
-      if (dataRes?.data?.data?.length) {
+      if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listDoctor = data.map(item => {
           const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
@@ -102,6 +108,57 @@ const Doctor = () => {
     } catch (error) {
       console.log('erroe: ', error);
       setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getListClinic();
+    getListSpecialty();
+  }, [])
+
+  const getListClinic = async () => {
+    try {
+      const dataRes = await ClinicApis.getClinics({
+        pages: 1,
+        take: 100,
+      })
+      // console.log('dataRes: ', dataRes);
+      if (dataRes?.data?.data) {
+        const { data } = dataRes?.data;
+        const listOptionsClinic = data.map(item => {
+          return {
+            id: item.id,
+            name: item?.name || '',
+          }
+        })
+        setListClinic(listOptionsClinic || []);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setListClinic([]);
+    }
+  }
+
+  const getListSpecialty = async () => {
+    try {
+      const dataSpecialty = await SpecialtyApis.getListSpecialty({
+        pages: 1,
+        take: 100,
+      });
+      if (dataSpecialty?.data?.data) {
+        const { data } = dataSpecialty?.data;
+        const listSpecialty = data?.map(item => {
+          return {
+            id: item.id,
+            name: item?.name,
+          }
+        })
+
+        setListSpecialty(listSpecialty || []);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setListSpecialty([]);
     }
   }
 
@@ -327,7 +384,7 @@ const Doctor = () => {
             displayName={'Phòng khám'}
             placeholder={'Phòng khám'}
             placeholderSearch={false}
-            plainOptions={listRole || []}
+            plainOptions={listClinic || []}
             checkedList={checkedList.clinic}
             keyFilter={'clinic'}
             handleCheckAll={handleCheckAll}
@@ -338,7 +395,7 @@ const Doctor = () => {
             displayName={'Chuyên khoa'}
             placeholder={'Chuyên khoa'}
             placeholderSearch={false}
-            plainOptions={listRole || []}
+            plainOptions={listSpecialty || []}
             checkedList={checkedList.specialty}
             keyFilter={'specialty'}
             handleCheckAll={handleCheckAll}

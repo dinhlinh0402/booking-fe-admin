@@ -5,6 +5,7 @@ import './CreateDoctor.scss';
 import { toast } from 'react-toastify';
 import ClinicApis from '../../../apis/Clinic';
 import SpecialtyApis from '../../../apis/Specialty';
+import DoctorApis from '../../../apis/Doctor';
 
 const { Option } = Select;
 const listGender = [
@@ -75,25 +76,35 @@ const CreateDoctor = ({
   }
   const handleAddNewDoctor = async (value) => {
     console.log('value: ', value);
-    // try {
-    //   setLoading(true)
-    //   const dataRes = await CustomerApis.createCustomer({
-    //     ...value,
-    //     role: 'USER',
-    //   })
-    //   // 
-    //   if (dataRes.status === 200) {
-    //     setLoading(false);
-    //     toast.success('Thêm khách hàng thành công');
-    //     handleCancelModal();
-    //   }
-    // } catch (error) {
-    //   setLoading(false);
-    //   if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
-    //     toast.error('Khách hàng đã tồn tại!');
-    //   }
-    //   // toast.error('Lỗi');
-    // }
+    try {
+      setLoading(true)
+      const dataRes = await DoctorApis.createDoctor({
+        ...value,
+      })
+      // 
+      if (dataRes.status === 200) {
+        setLoading(false);
+        toast.success('Thêm bác thành công');
+        handleCancelModal();
+        form.setFieldsValue({
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          email: '',
+          gender: undefined,
+          role: undefined,
+          clinicId: undefined,
+          specialtyId: undefined
+        })
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setLoading(false);
+      if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
+        toast.error('Bác sĩ đã tồn tại!');
+      }
+      // toast.error('Lỗi');
+    }
   }
 
   const handleChangSelectClinic = async (value) => {
@@ -288,6 +299,12 @@ const CreateDoctor = ({
               <Form.Item
                 name={'role'}
                 label={<span className='txt_label'>Vai trò</span>}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vai trò không được để trống',
+                  },
+                ]}
               >
                 <Select
                   style={{ width: '100%' }}

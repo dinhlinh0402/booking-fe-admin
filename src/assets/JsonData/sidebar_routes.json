@@ -20,8 +20,8 @@
         "icon": "bx bx-cart"
     },
     {
-        "display_name": "Analytics",
-        "route": "/analytics",
+        "display_name": "Quản lý phòng khám",
+        "route": "/admin/quan-ly-phong-kham",
         "icon": "bx bx-bar-chart-alt"
     },
     {

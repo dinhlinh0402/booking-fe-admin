@@ -7,6 +7,12 @@ const SpecialtyApis = {
     return requestClient.get(urlParam);
   },
 
+  getListSpecialty(params) {
+    const urlParam = `specialty`;
+
+    return requestClient.get(urlParam, { params: params });
+  },
+
   // createCareStaff(data) {
   //   const urlParam = 'user';
   //   return requestClient.post(urlParam, data)

@@ -10,6 +10,7 @@ import TestRouter from '../pages/TestRouter'
 import RequireAuth from '../router/AuthRouter';
 import Doctor from '../pages/Doctor';
 import CareStaff from '../pages/CareStaff';
+import Clinic from '../pages/Clinic';
 
 const RoutesAdmin = () => {
     return (
@@ -30,6 +31,12 @@ const RoutesAdmin = () => {
             <Route path='/admin/nhan-vien-cham-soc'>
                 <RequireAuth>
                     <CareStaff />
+                </RequireAuth>
+            </Route>
+
+            <Route path='/admin/quan-ly-phong-kham'>
+                <RequireAuth>
+                    <Clinic />
                 </RequireAuth>
             </Route>
 
