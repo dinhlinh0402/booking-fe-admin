@@ -40,7 +40,7 @@ const FilterObjDropDown = ({
   };
 
   const onCheckAllChange = (e) => {
-    handleCheckAll(keyFilter, e.target.checked ? listOptions.map((i) => i.key) : []);
+    handleCheckAll(keyFilter, e.target.checked ? listOptions.map((i) => i.id) : []);
     setIndeterminate(false);
   };
 

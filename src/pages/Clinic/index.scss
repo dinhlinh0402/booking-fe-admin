@@ -1,0 +1,25 @@
+.header_clinic {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .search_clinic {
+    width: 300px;
+  }
+
+  #btn__filter {
+    margin-right: 10px;
+    border: 0.5px solid #d7e0fc;
+    background-color: transparent;
+    height: 40px;
+    width: 40px;
+  }
+  
+  .list_button {
+    .button {
+      border-radius: 10px;
+      margin-left: 10px;
+    }
+  }
+}

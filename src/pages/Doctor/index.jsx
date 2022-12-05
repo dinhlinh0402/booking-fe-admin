@@ -103,7 +103,7 @@ const Doctor = () => {
         })
         setListDoctor(listDoctor || []);
         setDataResponse(dataRes?.data ? dataRes?.data : {});
-        setLoading(false)
+        setLoading(false);
       }
     } catch (error) {
       console.log('erroe: ', error);
