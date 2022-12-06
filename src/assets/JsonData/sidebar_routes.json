@@ -25,8 +25,8 @@
         "icon": "bx bx-bar-chart-alt"
     },
     {
-        "display_name": "categories",
-        "route": "/categories",
+        "display_name": "Quản lý chuyên khoa",
+        "route": "/admin/quan-ly-chuyen-khoa",
         "icon": "bx bx-list-ol"
     },
     {

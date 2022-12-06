@@ -336,7 +336,7 @@ const Doctor = () => {
             size="large"
             placeholder="Tìm kiếm"
             suffix={<SearchOutlined />}
-          // onChange={(e) => handleSearch(e)}
+            onChange={(e) => handleSearch(e)}
           />
         </Space>
 
