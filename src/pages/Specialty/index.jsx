@@ -18,11 +18,12 @@ const Specialty = () => {
   const [loading, setLoading] = useState(false);
   const [listSpecialty, setListSpecialty] = useState([]);
   const [dataResponse, setDataResponse] = useState({});
-  const [isShowModal, setShowModal] = useState(true);
+  const [isShowModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    getListSpecialty();
-  }, [pagination, search])
+    if (!isShowModal)
+      getListSpecialty();
+  }, [pagination, search, isShowModal])
 
   const getListSpecialty = async () => {
     setLoading(true);

@@ -13,6 +13,11 @@ const SpecialtyApis = {
     return requestClient.get(urlParam, { params: params });
   },
 
+  createSpecialty(data) {
+    const urlParam = 'specialty';
+    return requestClient.post(urlParam, data);
+  }
+
   // createCareStaff(data) {
   //   const urlParam = 'user';
   //   return requestClient.post(urlParam, data)
