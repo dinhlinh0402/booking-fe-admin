@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SearchOutlined, PlusCircleOutlined, FilterOutlined } from '@ant-design/icons';
-import { Button, Input, Table } from 'antd';
+import { SearchOutlined, PlusCircleOutlined, FilterOutlined, WarningFilled } from '@ant-design/icons';
+import { Alert, Button, Input, Modal, Space, Table, Typography } from 'antd';
 import './index.scss';
 import CustomerApis from '../../apis/Customer';
 import AddEditUser from './components/AddEditUser';
+import Stroke from '../../components/Icon/CareStaff/Stoke';
+import { toast } from 'react-toastify';
+import UserApis from '../../apis/User';
+const { Text } = Typography;
 
 const Customer = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -17,11 +21,12 @@ const Customer = () => {
   const [search, setSearch] = useState('');
   const typingSearch = useRef(null);
   const [isModalAdd, setModalAdd] = useState(false);
+  const [isShowModalDelete, setShowModalDelete] = useState(false);
 
   useEffect(() => {
-    if (!isModalAdd)
+    if (!isModalAdd || !isShowModalDelete)
       getListUser();
-  }, [pagination, search, isModalAdd])
+  }, [pagination, search, isModalAdd, isShowModalDelete])
 
   const getListUser = async () => {
     setLoading(true);
@@ -130,6 +135,24 @@ const Customer = () => {
     }, 500)
   }
 
+  const handleDeleteCustomer = async () => {
+    try {
+      if (selectedRowKeys.length > 0) {
+        const dataRes = await UserApis.deleteUser({
+          userIds: selectedRowKeys,
+        })
+        if (dataRes?.data === true && dataRes?.status === 200) {
+          toast.success('Xoá khách hàng thành công!');
+        }
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Xoá khách hàng không thành công!');
+    }
+    setShowModalDelete(false);
+    setSelectedRowKeys([]);
+  };
+
   return (
     <div>
       <h1>Danh sách khách hàng</h1>
@@ -155,6 +178,29 @@ const Customer = () => {
           </Button>
         </div>
       </div>
+
+      {selectedRowKeys.length > 0 && (
+        <Alert
+          className='fontSizeAlert'
+          message={
+            <div>
+              <Space>
+                <span>Đã chọn: {selectedRowKeys.length}</span>
+
+                <Button
+                  className='btn_active'
+                  icon={<Stroke className='transformY_2' />}
+                  onClick={() => {
+                    setShowModalDelete(true);
+                  }}
+                >
+                  <span className='ml_8'>Xóa</span>
+                </Button>
+              </Space>
+            </div>
+          }
+        />
+      )}
 
       <Table
         loading={isLoading}
@@ -189,6 +235,35 @@ const Customer = () => {
           type={'create'}
         />
       )}
+
+      <Modal
+        visible={isShowModalDelete}
+        onOk={handleDeleteCustomer}
+        onCancel={() => setShowModalDelete(false)}
+        cancelText={'Hủy'}
+        okText={'Xóa'}
+        className='confirm_delete_label'
+        width={370}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn xóa khách hàng?
+        </h2>
+        {/* <Space direction='vertical'>
+          <Text>
+            Sau khi xóa nhãn, hệ thống sẽ tự động gỡ nhãn khỏi các lượt tương tác đã được gắn nhãn
+            trước đây.
+            <br /> Vui lòng cân nhắc trước khi xóa.
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text>Các nhãn tạo từ Facebook được hệ thống tự động đồng bộ, không thể xóa.</Text>
+          </div>
+        </Space> */}
+      </Modal>
     </div>
   );
 }

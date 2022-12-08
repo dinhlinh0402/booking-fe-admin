@@ -39,6 +39,16 @@ const CreateStaff = ({
         setLoading(false);
         toast.success('Thêm nhân viên thành công');
         handleCancelModal();
+        form.setFieldsValue({
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          email: '',
+          phoneNumber: '',
+          gender: undefined,
+          birthday: undefined,
+          address: '',
+        })
       }
     } catch (error) {
       setLoading(false);

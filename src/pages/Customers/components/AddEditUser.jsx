@@ -16,7 +16,7 @@ const listGender = [
     value: 'Nữ'
   },
   {
-    key: 'ORTHER',
+    key: 'OTHER',
     value: 'Khác'
   }
 ]
@@ -34,7 +34,6 @@ const AddEditUser = ({
         ...value,
         role: 'USER',
       })
-      // 
       if (dataRes.status === 200) {
         setLoading(false);
         toast.success('Thêm khách hàng thành công');

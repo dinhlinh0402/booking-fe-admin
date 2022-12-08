@@ -1,15 +1,17 @@
 import { DownOutlined, FilterOutlined, LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Dropdown, Input, Space, Switch, Table } from 'antd';
+import { Alert, Button, Card, Dropdown, Input, Modal, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
 import CreateDoctor from './components/CreateDoctor';
 import './index.scss';
+import { toast } from 'react-toastify';
 import DoctorApis from '../../apis/Doctor';
 import moment from 'moment';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
 import ClinicApis from '../../apis/Clinic';
 import SpecialtyApis from '../../apis/Specialty';
+import UserApis from '../../apis/User';
 
 const listRole = [
   {
@@ -66,10 +68,12 @@ const Doctor = () => {
   const [listDoctor, setListDoctor] = useState([]);
   const [dataResponse, setDataResponse] = useState({});
   const [showBtn, setShowBtn] = useState([]);
+  const [isShowModalDelete, setShowModalDelete] = useState(false);
 
   useEffect(() => {
-    !isModalCreate && getListDoctor();
-  }, [checkedList, pagination, isModalCreate])
+    if (!isModalCreate && !isShowModalDelete)
+      getListDoctor();
+  }, [checkedList, pagination, isModalCreate, isShowModalDelete])
 
 
   const getListDoctor = async () => {
@@ -313,6 +317,24 @@ const Doctor = () => {
     }, 500)
   }
 
+  const handleDeleteCustomer = async () => {
+    try {
+      if (selectedRowKeys.length > 0) {
+        const dataRes = await UserApis.deleteUser({
+          userIds: selectedRowKeys,
+        })
+        if (dataRes?.data === true && dataRes?.status === 200) {
+          toast.success('Xoá bác sĩ thành công!');
+        }
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Xoá bác sĩ không thành công!');
+    }
+    setShowModalDelete(false);
+    setSelectedRowKeys([]);
+  };
+
   return (
     <div>
       <h1>Danh sách bác sĩ</h1>
@@ -418,10 +440,9 @@ const Doctor = () => {
                 <Button
                   className='btn_active'
                   icon={<Stroke className='transformY_2' />}
-                // onClick={() => {
-                //   setShowModalDelete(true);
-                //   setDeleteLabelIds(selectedRowKeys);
-                // }}
+                  onClick={() => {
+                    setShowModalDelete(true);
+                  }}
                 >
                   <span className='ml_8'>Xóa</span>
                 </Button>
@@ -462,6 +483,35 @@ const Doctor = () => {
         isShowModal={isModalCreate}
         handleCancelModal={() => setModalCreate(false)}
       />
+
+      <Modal
+        visible={isShowModalDelete}
+        onOk={handleDeleteCustomer}
+        onCancel={() => setShowModalDelete(false)}
+        cancelText={'Hủy'}
+        okText={'Xóa'}
+        className='confirm_delete_label'
+        width={370}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn xóa bác sĩ?
+        </h2>
+        {/* <Space direction='vertical'>
+          <Text>
+            Sau khi xóa nhãn, hệ thống sẽ tự động gỡ nhãn khỏi các lượt tương tác đã được gắn nhãn
+            trước đây.
+            <br /> Vui lòng cân nhắc trước khi xóa.
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text>Các nhãn tạo từ Facebook được hệ thống tự động đồng bộ, không thể xóa.</Text>
+          </div>
+        </Space> */}
+      </Modal>
     </div>
   )
 }

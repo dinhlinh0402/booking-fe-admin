@@ -23,3 +23,47 @@
     overflow: hidden !important;
     text-overflow: ellipsis;
 }
+
+.confirm_delete_label {
+  .ant-modal-content {
+    border-radius: 10px;
+  }
+
+  .ant-modal-header {
+    border-bottom: none;
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+  }
+
+  // :global(.ant-modal-content) {
+  //   text-align: center;
+  // }
+
+  .ant-modal-body {
+    padding-top: 50px;
+    padding-bottom: 0;
+  }
+
+  .ant-modal-footer {
+    margin-top: 5px;
+    padding-bottom: 35px;
+    text-align: center;
+
+    .ant-btn-default {
+      height: 45px;
+      color: rgba(17, 17, 17, 0.45);
+      font-weight: 500;
+      border-radius: 3px;
+    }
+
+    .ant-btn-primary {
+      height: 45px;
+      font-weight: 500;
+      background-color: #e2181a;
+      border: none;
+      border-radius: 3px;
+    }
+  }
+}
