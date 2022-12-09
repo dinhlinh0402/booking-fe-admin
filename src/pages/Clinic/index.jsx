@@ -1,7 +1,8 @@
 import { LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Alert, Button, Input, Space, Switch, Table } from 'antd';
+import { Alert, Button, Input, Modal, Space, Switch, Table } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import ClinicApis from '../../apis/Clinic';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
@@ -37,7 +38,7 @@ const Clinic = () => {
     active: [],
   })
   const [dataResponse, setDataResponse] = useState({});
-
+  const [isShowModalDelete, setShowModalDelete] = useState(false);
 
   useEffect(() => {
     const checkShow = [];
@@ -49,14 +50,14 @@ const Clinic = () => {
     if (checkShow.some((item) => item.active === true)) {
       btnArray.push(
         <Button
-          className='btn__active'
+          className='btn_active'
           icon={<LockOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_HIDE_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
+          onClick={() => {
+            handleChangeActive({
+              clinicIds: selectedRowKeys,
+              active: false
+            })
+          }}
         >
           <span className='ml_8'>Khoá tất cả</span>
         </Button>,
@@ -67,12 +68,12 @@ const Clinic = () => {
         <Button
           className='btn_active'
           icon={<UnlockOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_SHOW_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
+          onClick={() => {
+            handleChangeActive({
+              clinicIds: selectedRowKeys,
+              active: true
+            })
+          }}
         >
           <span className='ml_8'>Mở tất cả</span>
         </Button>,
@@ -83,8 +84,9 @@ const Clinic = () => {
   }, [selectedRowKeys]);
 
   useEffect(() => {
-    getListClinic();
-  }, [checkedList, pagination])
+    if (!isShowModalDelete)
+      getListClinic();
+  }, [checkedList, pagination, search, isShowModalDelete])
 
   const getListClinic = async () => {
     try {
@@ -93,6 +95,7 @@ const Clinic = () => {
         page: pagination.page,
         take: pagination.pageSize,
         active: checkedList.active || undefined,
+        q: search || undefined,
       })
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
@@ -117,6 +120,20 @@ const Clinic = () => {
       setLoading(false);
     }
   }
+
+  const handleChangeActive = async ({ clinicIds, active }) => {
+    try {
+      const dataRes = await ClinicApis.changeActive({ clinicIds, active });
+      if (dataRes?.status === 200 && dataRes.data === true) {
+        toast.success('Thay đổI trạng thái thành công')
+        getListClinic();
+        setSelectedRowKeys([]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Thay đổi trạng thái không thành công!')
+    }
+  }
   const columns = [
     {
 
@@ -128,12 +145,12 @@ const Clinic = () => {
       render: (_, record) => (
         <Switch
           checked={record?.active === true}
-        // onChange={() =>
-        //   mutationUpdateLabel.mutate({
-        //     enable: record.enable === 1 ? 0 : 1,
-        //     label_id: record?.id,
-        //   })
-        // }
+          onChange={() =>
+            handleChangeActive({
+              clinicIds: [record.id],
+              active: record.active === true ? false : true,
+            })
+          }
         />
       ),
       fixed: true,
@@ -204,7 +221,23 @@ const Clinic = () => {
       setSearch(e.target.value);
     }, 500)
   }
-  console.log('dataRes?.data: ', pagination);
+
+  const handleDeleteClinic = async () => {
+    try {
+      const dataRes = await ClinicApis.deleteClinic({
+        clinicIds: selectedRowKeys,
+      })
+      if (dataRes?.data === true && dataRes.status === 200) {
+        toast.success('Xoá phòng khám thành công');
+        setShowModalDelete(false);
+        setSelectedRowKeys([]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Xoá phòng khám không thành công!');
+    }
+  }
+
   return (
     <div>
       <h1>Danh sách phòng khám</h1>
@@ -277,10 +310,7 @@ const Clinic = () => {
                 <Button
                   className='btn_active'
                   icon={<Stroke className='transformY_2' />}
-                // onClick={() => {
-                //   setShowModalDelete(true);
-                //   setDeleteLabelIds(selectedRowKeys);
-                // }}
+                  onClick={() => setShowModalDelete(true)}
                 >
                   <span className='ml_8'>Xóa</span>
                 </Button>
@@ -316,6 +346,35 @@ const Clinic = () => {
         }}
         scroll={{ x: 'max-content' }}
       />
+
+      <Modal
+        visible={isShowModalDelete}
+        onOk={handleDeleteClinic}
+        onCancel={() => setShowModalDelete(false)}
+        cancelText={'Hủy'}
+        okText={'Xóa'}
+        className='confirm_delete_label'
+        width={370}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn xóa bác sĩ?
+        </h2>
+        {/* <Space direction='vertical'>
+          <Text>
+            Sau khi xóa nhãn, hệ thống sẽ tự động gỡ nhãn khỏi các lượt tương tác đã được gắn nhãn
+            trước đây.
+            <br /> Vui lòng cân nhắc trước khi xóa.
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text>Các nhãn tạo từ Facebook được hệ thống tự động đồng bộ, không thể xóa.</Text>
+          </div>
+        </Space> */}
+      </Modal>
     </div>
   )
 }

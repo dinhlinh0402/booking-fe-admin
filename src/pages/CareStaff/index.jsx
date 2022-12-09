@@ -1,4 +1,4 @@
-import { EyeInvisibleOutlined, EyeOutlined, FilterOutlined, PlusCircleOutlined, PushpinOutlined, ReconciliationFilled, SearchOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeOutlined, FilterOutlined, LockOutlined, PlusCircleOutlined, PushpinOutlined, ReconciliationFilled, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Alert, Button, Input, Modal, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import CreateStaff from './components/CreateStaff';
@@ -37,35 +37,35 @@ const CareStaff = () => {
       if (label) checkShow.push(label);
     });
     const btnArray = [];
-    if (checkShow.some((item) => item.status === 1)) {
-      btnArray.push(
-        <Button
-          className='btn__active'
-          icon={<EyeInvisibleOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_HIDE_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
-        >
-          <span className='ml_8'>Ẩn tất cả</span>
-        </Button>,
-      );
-    }
-    if (checkShow.some((item) => item.status === 0)) {
+    if (checkShow.some((item) => item.status === true)) {
       btnArray.push(
         <Button
           className='btn_active'
-          icon={<EyeOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_SHOW_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
+          icon={<LockOutlined style={{ transform: 'translateY(-1px)' }} />}
+          onClick={() => {
+            handleChangeStatus({
+              userIds: selectedRowKeys,
+              status: false,
+            })
+          }}
         >
-          <span className='ml_8'>Hiện tất cả</span>
+          <span className='ml_8'>Khoá tất cả</span>
+        </Button>,
+      );
+    }
+    if (checkShow.some((item) => item.status === false)) {
+      btnArray.push(
+        <Button
+          className='btn_active'
+          icon={<UnlockOutlined style={{ transform: 'translateY(-1px)' }} />}
+          onClick={() => {
+            handleChangeStatus({
+              userIds: selectedRowKeys,
+              status: true,
+            })
+          }}
+        >
+          <span className='ml_8'>Mở tất cả</span>
         </Button>,
       );
     }
@@ -90,7 +90,7 @@ const CareStaff = () => {
           const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
           return {
             id: item.id || '',
-            status: 0,
+            status: item.status,
             name: name || '',
             email: item.email || '',
             gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
@@ -110,6 +110,21 @@ const CareStaff = () => {
     }
   }
 
+  const handleChangeStatus = async ({ userIds, status }) => {
+    try {
+      const dataRes = await UserApis.changeStatus({ userIds, status });
+      console.log('dataRes: ', dataRes);
+      if (dataRes?.data === true && dataRes?.status === 200) {
+        toast.success('Thay đổi trạng thái thành công!');
+        getListCareStaff();
+        setSelectedRowKeys([]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Thay đổi trạng thái không thành công!');
+    }
+  }
+
   const columns = [
     {
       title: 'Trạng thái',
@@ -119,13 +134,11 @@ const CareStaff = () => {
       align: 'center',
       render: (_, record) => (
         <Switch
-          checked={record?.status === 1}
-        // onChange={() =>
-        //   mutationUpdateLabel.mutate({
-        //     enable: record.enable === 1 ? 0 : 1,
-        //     label_id: record?.id,
-        //   })
-        // }
+          checked={record?.status === true}
+          onChange={() => handleChangeStatus({
+            userIds: [record.id],
+            status: record.status === true ? false : true
+          })}
         />
       ),
     },
@@ -220,7 +233,7 @@ const CareStaff = () => {
     setShowModalDelete(false);
     setSelectedRowKeys([]);
   };
-
+  console.log('button: ', showBtn);
   return (
     <div>
       <h1>Danh sách nhân viên</h1>
@@ -231,7 +244,7 @@ const CareStaff = () => {
           size="large"
           placeholder="Tìm kiếm"
           suffix={<SearchOutlined />}
-        // onChange={(e) => handleSearch(e)}
+          onChange={(e) => handleSearch(e)}
         />
         <div className='list_button'>
           <Button className='button' size="large" icon={<FilterOutlined />}>Lọc</Button>
@@ -282,9 +295,9 @@ const CareStaff = () => {
           onChange: onSelectChange
         }}
         pagination={{
-          current: 1, // so trang
-          total: 10, // tong tat ca 
-          defaultPageSize: 10,
+          current: dataResponse?.meta?.page || 1, // so trang
+          total: dataResponse?.meta?.itemCount || 10, // tong tat ca 
+          defaultPageSize: dataResponse?.meta?.take || 10,
           showSizeChanger: true,
           pageSizeOptions: ['10', '20', '50', '100'],
           locale: { items_per_page: ' kết quả/trang' },

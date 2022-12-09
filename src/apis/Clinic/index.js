@@ -7,10 +7,15 @@ const ClinicApis = {
     return requestClient.get(urlParam, { params });
   },
 
-  // createCareStaff(data) {
-  //   const urlParam = 'user';
-  //   return requestClient.post(urlParam, data)
-  // }
+  deleteClinic(data) {
+    const urlParam = 'clinic';
+    return requestClient.delete(urlParam, { data: data });
+  },
+
+  changeActive(data) {
+    const urlParam = 'clinic/change-active';
+    return requestClient.put(urlParam, data)
+  }
 };
 
 

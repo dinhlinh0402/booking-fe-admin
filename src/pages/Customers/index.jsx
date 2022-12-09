@@ -34,8 +34,8 @@ const Customer = () => {
       const dataRes = await CustomerApis.getCustomer({
         page: pagination.page,
         take: pagination.pageSize,
-        name: search || undefined,
-        role: 'USER'
+        role: 'USER',
+        q: search || undefined,
       });
       if (dataRes?.data?.data.length) {
 

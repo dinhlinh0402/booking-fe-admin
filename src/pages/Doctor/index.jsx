@@ -73,7 +73,7 @@ const Doctor = () => {
   useEffect(() => {
     if (!isModalCreate && !isShowModalDelete)
       getListDoctor();
-  }, [checkedList, pagination, isModalCreate, isShowModalDelete])
+  }, [checkedList, pagination, isModalCreate, isShowModalDelete, search])
 
 
   const getListDoctor = async () => {
@@ -82,11 +82,11 @@ const Doctor = () => {
       const dataRes = await DoctorApis.getListDoctor({
         page: pagination.page,
         take: pagination.pageSize,
-        name: search || undefined,
         status: checkedList.status || undefined,
         role: checkedList.role.length ? checkedList.role : ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'],
         clinicIds: checkedList.clinic || undefined,
         specialtyIds: checkedList.specialty || undefined,
+        q: search || undefined,
       })
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
@@ -126,7 +126,6 @@ const Doctor = () => {
         pages: 1,
         take: 100,
       })
-      // console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listOptionsClinic = data.map(item => {
@@ -176,14 +175,14 @@ const Doctor = () => {
     if (checkShow.some((item) => item.status === true)) {
       btnArray.push(
         <Button
-          className='btn__active'
+          className='btn_active'
           icon={<LockOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_HIDE_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
+          onClick={() => {
+            handleChangeStatus({
+              userIds: selectedRowKeys,
+              status: false,
+            })
+          }}
         >
           <span className='ml_8'>Khoá tất cả</span>
         </Button>,
@@ -194,12 +193,12 @@ const Doctor = () => {
         <Button
           className='btn_active'
           icon={<UnlockOutlined style={{ transform: 'translateY(-1px)' }} />}
-        // onClick={() => {
-        //   mutationActionLabel.mutate({
-        //     type: TypeActionLabel.ENABLE_SHOW_ALL,
-        //     labelIds: selectedRowKeysPriority,
-        //   });
-        // }}
+          onClick={() => {
+            handleChangeStatus({
+              userIds: selectedRowKeys,
+              status: true,
+            })
+          }}
         >
           <span className='ml_8'>Mở tất cả</span>
         </Button>,
@@ -208,6 +207,20 @@ const Doctor = () => {
 
     setShowBtn([...btnArray]);
   }, [selectedRowKeys]);
+
+  const handleChangeStatus = async ({ userIds, status }) => {
+    try {
+      const dataRes = await UserApis.changeStatus({ userIds, status });
+      if (dataRes?.data === true && dataRes?.status === 200) {
+        toast.success('Thay đổi trạng thái thành công!');
+        getListDoctor();
+        setSelectedRowKeys([]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Thay đổi trạng thái không thành công!');
+    }
+  }
 
   const columns = [
     {
@@ -220,12 +233,10 @@ const Doctor = () => {
       render: (_, record) => (
         <Switch
           checked={record?.status === true}
-        // onChange={() =>
-        //   mutationUpdateLabel.mutate({
-        //     enable: record.enable === 1 ? 0 : 1,
-        //     label_id: record?.id,
-        //   })
-        // }
+          onChange={() => handleChangeStatus({
+            userIds: [record.id],
+            status: record.status === true ? false : true
+          })}
         />
       ),
       fixed: true,
@@ -317,14 +328,14 @@ const Doctor = () => {
     }, 500)
   }
 
-  const handleDeleteCustomer = async () => {
+  const handleDeleteDoctor = async () => {
     try {
       if (selectedRowKeys.length > 0) {
         const dataRes = await UserApis.deleteUser({
           userIds: selectedRowKeys,
         })
         if (dataRes?.data === true && dataRes?.status === 200) {
-          toast.success('Xoá bác sĩ thành công!');
+          toast.success('Xoá bác sĩ thành công');
         }
       }
     } catch (error) {
@@ -462,7 +473,7 @@ const Doctor = () => {
           onChange: onSelectChange
         }}
         pagination={{
-          current: dataResponse?.meta?.page || 2, // so trang
+          current: dataResponse?.meta?.page || 1, // so trang
           total: dataResponse?.meta?.itemCount || 10, // tong tat ca 
           defaultPageSize: dataResponse?.meta?.take || 10,
           showSizeChanger: true,
@@ -486,7 +497,7 @@ const Doctor = () => {
 
       <Modal
         visible={isShowModalDelete}
-        onOk={handleDeleteCustomer}
+        onOk={handleDeleteDoctor}
         onCancel={() => setShowModalDelete(false)}
         cancelText={'Hủy'}
         okText={'Xóa'}

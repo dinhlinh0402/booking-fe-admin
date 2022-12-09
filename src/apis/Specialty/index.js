@@ -16,8 +16,12 @@ const SpecialtyApis = {
   createSpecialty(data) {
     const urlParam = 'specialty';
     return requestClient.post(urlParam, data);
-  }
+  },
 
+  deleteSpecialty(data) {
+    const urlParam = 'specialty';
+    return requestClient.delete(urlParam, { data })
+  }
   // createCareStaff(data) {
   //   const urlParam = 'user';
   //   return requestClient.post(urlParam, data)

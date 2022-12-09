@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Alert, Button, Input, Space, Table } from 'antd';
+import { Alert, Button, Input, Modal, Space, Table } from 'antd';
 import SpecialtyApis from '../../apis/Specialty';
 import './index.scss';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
 import moment from 'moment';
 import CreateEditSpecialty from './components/CreateEdit';
+import { toast } from 'react-toastify';
 
 const Specialty = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -19,11 +20,12 @@ const Specialty = () => {
   const [listSpecialty, setListSpecialty] = useState([]);
   const [dataResponse, setDataResponse] = useState({});
   const [isShowModal, setShowModal] = useState(false);
+  const [isShowModalDelete, setShowModalDelete] = useState(false);
 
   useEffect(() => {
-    if (!isShowModal)
+    if (!isShowModal && !isShowModalDelete)
       getListSpecialty();
-  }, [pagination, search, isShowModal])
+  }, [pagination, search, isShowModal, isShowModalDelete])
 
   const getListSpecialty = async () => {
     setLoading(true);
@@ -104,6 +106,22 @@ const Specialty = () => {
     }
   ]
 
+  const handleDeleteSpecialty = async () => {
+    try {
+      const dataRes = await SpecialtyApis.deleteSpecialty({
+        specialtyIds: selectedRowKeys,
+      })
+      if (dataRes?.data === true && dataRes.status === 200) {
+        toast.success('Xoá chuyên khoa thành công!');
+        setShowModalDelete(false);
+        setSelectedRowKeys([]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Xoá chuyên khoa không thành công!');
+    }
+  }
+
   return (
     <div>
       <h1>Danh sách chuyên khoa</h1>
@@ -154,10 +172,7 @@ const Specialty = () => {
                 <Button
                   className='btn_active'
                   icon={<Stroke className='transformY_2' />}
-                // onClick={() => {
-                //   setShowModalDelete(true);
-                //   setDeleteLabelIds(selectedRowKeys);
-                // }}
+                  onClick={() => setShowModalDelete(true)}
                 >
                   <span className='ml_8'>Xóa</span>
                 </Button>
@@ -201,6 +216,35 @@ const Specialty = () => {
           type={'create'}
         />
       )}
+
+      <Modal
+        visible={isShowModalDelete}
+        onOk={handleDeleteSpecialty}
+        onCancel={() => setShowModalDelete(false)}
+        cancelText={'Hủy'}
+        okText={'Xóa'}
+        className='confirm_delete_label'
+        width={370}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn xóa chuyên khoa?
+        </h2>
+        {/* <Space direction='vertical'>
+          <Text>
+            Sau khi xóa nhãn, hệ thống sẽ tự động gỡ nhãn khỏi các lượt tương tác đã được gắn nhãn
+            trước đây.
+            <br /> Vui lòng cân nhắc trước khi xóa.
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text>Các nhãn tạo từ Facebook được hệ thống tự động đồng bộ, không thể xóa.</Text>
+          </div>
+        </Space> */}
+      </Modal>
 
     </div>
   )
