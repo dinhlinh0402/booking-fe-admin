@@ -12,6 +12,7 @@ import Doctor from '../pages/Doctor';
 import CareStaff from '../pages/CareStaff';
 import Clinic from '../pages/Clinic';
 import Specialty from '../pages/Specialty';
+import Schedules from '../pages/Schedules';
 
 const RoutesAdmin = () => {
     return (
@@ -44,6 +45,12 @@ const RoutesAdmin = () => {
             <Route path='/admin/quan-ly-chuyen-khoa'>
                 <RequireAuth>
                     <Specialty />
+                </RequireAuth>
+            </Route>
+
+            <Route path='/admin/quan-ly-lich-kham'>
+                <RequireAuth>
+                    <Schedules />
                 </RequireAuth>
             </Route>
 

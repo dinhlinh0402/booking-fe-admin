@@ -30,8 +30,8 @@
         "icon": "bx bx-list-ol"
     },
     {
-        "display_name": "discount",
-        "route": "/discount",
+        "display_name": "Quản lý lịch khám",
+        "route": "/admin/quan-ly-lich-kham",
         "icon": "bx bx-gift"
     },
     {

@@ -15,6 +15,11 @@ const ClinicApis = {
   changeActive(data) {
     const urlParam = 'clinic/change-active';
     return requestClient.put(urlParam, data)
+  },
+
+  createClinic(data) {
+    const urlParam = 'clinic';
+    return requestClient.post(urlParam, data);
   }
 };
 

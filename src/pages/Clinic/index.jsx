@@ -7,6 +7,7 @@ import ClinicApis from '../../apis/Clinic';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
+import CreateClinic from './components/CreateClinic';
 import './index.scss';
 
 
@@ -29,7 +30,7 @@ const Clinic = () => {
     page: 1,
     pageSize: 10,
   });
-  const [isModalCreate, setModalCreate] = useState(false);
+  const [isModalCreate, setModalCreate] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(false);
   const [listClinic, setListClinic] = useState([]);
@@ -84,9 +85,9 @@ const Clinic = () => {
   }, [selectedRowKeys]);
 
   useEffect(() => {
-    if (!isShowModalDelete)
+    if (!isShowModalDelete && !isModalCreate)
       getListClinic();
-  }, [checkedList, pagination, search, isShowModalDelete])
+  }, [checkedList, pagination, search, isShowModalDelete, isModalCreate])
 
   const getListClinic = async () => {
     try {
@@ -110,7 +111,6 @@ const Clinic = () => {
             createdDate: item.createdDate ? moment(item.createdDate).format('DD/MM/YYYY') : '',
           }
         })
-        console.log('dataRes?.data: ', dataRes?.data);
         setListClinic(listClinic || []);
         setDataResponse(dataRes?.data ? dataRes.data : {});
         setLoading(false);
@@ -194,7 +194,6 @@ const Clinic = () => {
   ]
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -211,7 +210,6 @@ const Clinic = () => {
       [key]: value,
     });
   };
-  // console.log('checked: ', checkedList.active);
 
   const handleSearch = (e) => {
     if (typingSearch.current) {
@@ -345,6 +343,11 @@ const Clinic = () => {
           },
         }}
         scroll={{ x: 'max-content' }}
+      />
+
+      <CreateClinic
+        isShowModal={isModalCreate}
+        handleCancelModal={() => setModalCreate(false)}
       />
 
       <Modal
