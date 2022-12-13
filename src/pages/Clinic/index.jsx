@@ -30,7 +30,7 @@ const Clinic = () => {
     page: 1,
     pageSize: 10,
   });
-  const [isModalCreate, setModalCreate] = useState(true);
+  const [isModalCreate, setModalCreate] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(false);
   const [listClinic, setListClinic] = useState([]);

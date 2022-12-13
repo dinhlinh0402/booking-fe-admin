@@ -226,7 +226,6 @@ const CreateClinic = ({
               // ]}
               >
                 <Select
-                  // showSearch
                   mode='multiple'
                   allowClear
                   showArrow
@@ -234,8 +233,9 @@ const CreateClinic = ({
                   size='middle'
                   placeholder={true ? 'Chọn chuyên khoa' : 'Không có thông tin'}
                   className='txt_input'
+                  // defaultValue={}
                   filterOption={(input, option) =>
-                    option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
+                    option?.children !== null && option?.children?.toLowerCase().includes(input.trim().toLowerCase())
                   }
                 >
                   {optionsSpecialty.length && optionsSpecialty.map((item) => (
