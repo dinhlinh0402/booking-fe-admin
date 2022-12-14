@@ -1,0 +1,27 @@
+.header_schedule {
+  display: flex;
+  justify-content: space-between;
+
+  .date_picker {
+    width: 300px;
+
+    .ant-picker-input {
+      input:focus {
+        border: none;
+      }
+    }
+  }
+}
+
+.list_schedule {
+  .title_list_schedule {
+    
+  }
+
+  .ant-space-item {
+    .button_origin {
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+  }
+}

@@ -1,5 +1,5 @@
-import { DownOutlined, FilterOutlined, LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Dropdown, Input, Modal, Space, Switch, Table } from 'antd';
+import { LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Alert, Button, Input, Modal, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
 import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
