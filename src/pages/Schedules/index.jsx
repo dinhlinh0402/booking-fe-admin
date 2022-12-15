@@ -1,38 +1,12 @@
-import { Button, DatePicker, Space } from 'antd';
+import { Button, DatePicker, Empty, Modal, Space, Typography } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { PlusCircleOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, WarningFilled } from '@ant-design/icons';
 import ScheduleApis from '../../apis/Schedules';
 import './index.scss';
 import CreateSchedule from './components/CreateSchedule';
 
-const time = [
-  {
-    timeStart: '08:00:00',
-    timeEnd: '08:30:00'
-  },
-  {
-    timeStart: '08:30:00',
-    timeEnd: '09:00:00'
-  },
-  {
-    timeStart: '08:00:00',
-    timeEnd: '08:30:00'
-  },
-  {
-    timeStart: '08:00:00',
-    timeEnd: '08:30:00'
-  },
-  {
-    timeStart: '08:00:00',
-    timeEnd: '08:30:00'
-  },
-  {
-    timeStart: '08:00:00',
-    timeEnd: '08:30:00'
-  }
-
-]
+const { Text } = Typography;
 
 const timeStartDay = '2022-12-14T08:00:00';
 const timeEndDay = '2022-12-14T18:00:00';
@@ -42,11 +16,14 @@ const Schedules = () => {
 
   const [selectDate, setSelectDate] = useState(moment(dateNow).add(1, 'day').format('YYYY-MM-DDT08:00:00'));
   const [listSchedule, setListSchedule] = useState([]);
-  const [isModalCreate, setModalCreate] = useState(true);
+  const [isModalCreate, setModalCreate] = useState(false);
+  const [listScheduleDisable, setListScheduleDisable] = useState([]);
+  const [isShowChangeSchedule, setShowChangeSchedule] = useState(false);
 
   useEffect(() => {
-    getSchedules();
-  }, [selectDate])
+    if (!isModalCreate)
+      getSchedules();
+  }, [selectDate, isModalCreate]);
 
   const getSchedules = async () => {
     try {
@@ -61,6 +38,7 @@ const Schedules = () => {
         const { data } = dataRes?.data;
         const listScheduleMap = data.map(item => {
           return {
+            id: item.id,
             timeStart: item.timeStart ? moment(item?.timeStart).format('YYYY-MM-DDTHH:mm:ss') : '',
             timeEnd: item.timeEnd ? moment(item?.timeEnd).format('YYYY-MM-DDTHH:mm:ss') : '',
             checked: true,
@@ -88,8 +66,6 @@ const Schedules = () => {
     }
     // setListSchedule(listTime);
   }, [])
-  // console.log('listSchedule: ', listSchedule);
-  // console.log(moment(timeStartDay).add(30, 'minutes').format('DD-MM-YYYY HH:mm'));
 
   const onChange = (date, stringDate) => {
     // console.log('date: ', date);
@@ -100,18 +76,25 @@ const Schedules = () => {
   const handleCheckedSchedule = (schedule) => {
     // const {timeStart, timeEnd, checked} = schedule;
     const listScheduleClone = listSchedule;
+    const listScheduleDisableNew = new Set([...listScheduleDisable]);
     const listScheduleNew = listScheduleClone.map(item => {
-      if (moment(item.timeStart).isSame(schedule.timeStart) && moment(item.timeStart).isSame(schedule.timeStart)) {
+      if (item.id === schedule.id && schedule.checked === item.checked) {
+        if (schedule.checked === true && item.checked === true) {
+          listScheduleDisableNew.add(schedule.id);
+        } else {
+          listScheduleDisableNew.delete(schedule.id);
+        }
         return {
           ...item,
-          checked: schedule.checked ? false : true,
+          checked: !schedule.checked,
         }
       }
       return item;
     })
     setListSchedule(listScheduleNew);
+    setListScheduleDisable([...listScheduleDisableNew]);
   }
-
+  console.log('listScheduleDisable: ', listScheduleDisable);
   return (
     <div>
       <h1>Quản lý lịch khám</h1>
@@ -151,11 +134,12 @@ const Schedules = () => {
         <div className="title_list_schedule">
           Danh sách giờ khám
         </div>
+        <div className="description_list_schedule">Bấm vào từng khung giờ để có thể cập nhật lại kế hoạch khám.</div>
         {listSchedule && listSchedule.length ? (
-          <Space>
+          <Space wrap>
             {listSchedule.map((item, idx) => (
               <Button
-                key={item.timeStart}
+                key={`button-${idx}`}
                 type={item.checked ? 'primary' : ''}
                 className={item.checked ? '' : 'button_origin'}
                 onClick={() => handleCheckedSchedule(item)}
@@ -164,10 +148,19 @@ const Schedules = () => {
               </Button>
             ))}
           </Space>
-        ) : null}
-
-
+        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<div>Không có giờ khám</div>} />}
       </div>
+
+      {listScheduleDisable && listScheduleDisable.length > 0 && (
+        <div className="button_update_schedules">
+          <Button
+            type='primary'
+            onClick={() => setShowChangeSchedule(true)}
+          >
+            Cập nhật kế hoạch khám
+          </Button>
+        </div>
+      )}
 
       {/* <CreateSchedule
         isShowModal={isModalCreate}
@@ -177,6 +170,36 @@ const Schedules = () => {
         isShowModal={isModalCreate}
         handleCancelModal={() => setModalCreate(false)}
       />
+
+      <Modal
+        visible={isShowChangeSchedule}
+        // onOk={handleDeleteDoctor}
+        onCancel={() => setShowChangeSchedule(false)}
+        cancelText={'Hủy'}
+        okText={'Cập nhật'}
+        className='confirm_delete_label'
+        width={400}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn thay đổi kế hoạch khám không?
+        </h2>
+        <Space direction='vertical'>
+          <Text>
+
+
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text> Sau khi thay đổi, hệ thống sẽ tự động gỡ giờ khám đã đươc bỏ chọn trong danh sách.
+              <br /> Vui lòng cân nhắc trước khi cập nhật.
+            </Text>
+          </div>
+        </Space>
+      </Modal>
     </div>
   )
 }

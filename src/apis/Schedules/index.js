@@ -6,6 +6,11 @@ const ScheduleApis = {
 
     return requestClient.get(urlParam, { params });
   },
+
+  createSchdules(data) {
+    const urlParam = 'schedules';
+    return requestClient.post(urlParam, data)
+  },
 };
 
 

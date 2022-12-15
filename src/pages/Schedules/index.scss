@@ -15,13 +15,37 @@
 
 .list_schedule {
   .title_list_schedule {
-    
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0 0 0;
+  }
+  .description_list_schedule {
+    margin-bottom: 10px;
   }
 
-  .ant-space-item {
-    .button_origin {
-      border-color: #1677ff;
-      color: #1677ff;
+  .ant-space {
+    gap: 38px !important;
+    .ant-space-item {
+      button {
+        border-radius: 5px;
+        height: 40px;
+      }
+      .button_origin {
+        border-color: #1677ff;
+        color: #1677ff;
+      }
     }
+  }
+}
+
+.button_update_schedules {
+  margin-top: 20px;
+  
+  // margin: auto;
+  text-align: center;
+
+  button {
+    height: 40px;
+    border-radius: 5px;
   }
 }
