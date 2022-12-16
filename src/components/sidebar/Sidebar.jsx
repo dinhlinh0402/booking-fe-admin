@@ -40,10 +40,19 @@ const Sidebar = props => {
             setSidebarItems(sidebar_items_manage_clinic);
     }, [])
 
-    const activeItem = sidebarItems?.findIndex(item => item.route === props.location.pathname)
+    // const activeItem = sidebarItems?.findIndex(item => item.route === props.location.pathname)
     // console.log('props: ', props);
     // console.log('sidebarItems: ', sidebarItems);
 
+    const activeItem = sidebarItems?.findIndex(item => {
+        // console.log('item.route: ', item.route);
+        // console.log('props.location.pathname: ', props.location.pathname);
+        const router = item.route.split('/').join('-');
+        const pathName = props.location.pathname.split('/').slice(0, 3).join('-');
+        // console.log('router: ', router);
+        // console.log('pathName: ', pathName);
+        return router === pathName;
+    })
 
     return (
         <div className='sidebar'>

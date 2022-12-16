@@ -13,16 +13,32 @@ import CareStaff from '../pages/CareStaff';
 import Clinic from '../pages/Clinic';
 import Specialty from '../pages/Specialty';
 import Schedules from '../pages/Schedules';
+import DetailCustomer from '../pages/Customers/Detail';
 
 const RoutesAdmin = () => {
     return (
         <Switch>
             <Route path='/admin' exact component={Dashboard} />
             {/* <Route path='/admin/quan-ly-khach-hang' component={Customers} /> */}
-            <Route path='/admin/quan-ly-khach-hang'>
+            {/* <Route path='/admin/quan-ly-khach-hang'>
                 <RequireAuth>
                     <Customers />
                 </RequireAuth>
+            </Route> */}
+            <Route path='/admin/quan-ly-khach-hang'>
+                <Switch>
+                    <Route exact path='/admin/quan-ly-khach-hang'>
+                        <RequireAuth>
+                            <Customers />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='/admin/quan-ly-khach-hang/chi-tiet/:customerId'>
+                        <RequireAuth>
+                            <DetailCustomer />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='*' render={() => <div>404 222</div>} />
+                </Switch>
             </Route>
             <Route path='/admin/quan-ly-bac-si'>
                 <RequireAuth>

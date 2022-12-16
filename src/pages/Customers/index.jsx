@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SearchOutlined, PlusCircleOutlined, FilterOutlined, WarningFilled } from '@ant-design/icons';
 import { Alert, Button, Input, Modal, Space, Table, Typography } from 'antd';
+import { Link, useLocation } from 'react-router-dom';
 import './index.scss';
 import CustomerApis from '../../apis/Customer';
 import AddEditUser from './components/AddEditUser';
@@ -22,6 +23,7 @@ const Customer = () => {
   const typingSearch = useRef(null);
   const [isModalAdd, setModalAdd] = useState(false);
   const [isShowModalDelete, setShowModalDelete] = useState(false);
+  let location = useLocation();
 
   useEffect(() => {
     if (!isModalAdd || !isShowModalDelete)
@@ -72,8 +74,14 @@ const Customer = () => {
       dataIndex: 'name',
       key: 'name',
       width: '20%',
-      render: (value) => (
-        <div>{value}</div>
+      render: (_, record) => (
+        <div
+          style={{
+            cursor: 'pointer',
+          }}
+        >
+          <Link to={location => `${location.pathname}/chi-tiet/${record.id}`}>{record.name}</Link>
+        </div>
       ),
     },
     {
