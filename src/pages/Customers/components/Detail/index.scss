@@ -1,0 +1,69 @@
+.header_detail_customer {
+  font-size: 17px;
+  margin-bottom: 20px;
+
+  .name_customer {
+    margin-left: 10px;
+  }
+}
+
+.detail_customer_container {
+  .detail_customer_function {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    .search_doctor {
+      width: 300px;
+    }
+
+    #btn__filter {
+      margin-right: 10px;
+      border: 0.5px solid #d7e0fc;
+      background-color: transparent;
+      height: 40px;
+      width: 40px;
+    }
+    
+    .list_button {
+      .button {
+        border-radius: 10px;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .filter__dropdown {
+    position: relative;
+    color: rgba(17, 17, 17, 0.45);
+  
+    &:hover {
+      color: rgba(17, 17, 17, 0.75);
+    }
+  
+    #dot__active {
+      position: absolute;
+      top: 6.5px;
+      right: 3px;
+      width: 6px;
+      height: 6px;
+      background: #e2181a;
+      border-radius: 100%;
+    }
+  }
+}
+
+.cardBody {
+  .ant-card-body {
+    padding: 10px;
+
+    .ant-picker {
+      .ant-picker-input {
+        input:focus {
+          border: none;
+        }
+      }
+    }
+  } 
+}

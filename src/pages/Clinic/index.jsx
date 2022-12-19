@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import ClinicApis from '../../apis/Clinic';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
-import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
+import FilterIcon from '../../components/Icon/Doctor/FilterIcon';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
 import CreateClinic from './components/CreateClinic';
 import './index.scss';

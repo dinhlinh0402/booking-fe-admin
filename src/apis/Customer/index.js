@@ -10,7 +10,12 @@ const CustomerApis = {
   createCustomer(data) {
     const urlParam = 'user';
     return requestClient.post(urlParam, data)
-  }
+  },
+
+  updateCustomer(userId, data) {
+    const urlParam = `user/${userId}`;
+    return requestClient.put(urlParam, data);
+  },
 };
 
 

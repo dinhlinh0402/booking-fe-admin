@@ -26,6 +26,10 @@ const Customer = () => {
   let location = useLocation();
 
   useEffect(() => {
+    document.title = 'Quản lý khách khàng'
+  }, [])
+
+  useEffect(() => {
     if (!isModalAdd || !isShowModalDelete)
       getListUser();
   }, [pagination, search, isModalAdd, isShowModalDelete])

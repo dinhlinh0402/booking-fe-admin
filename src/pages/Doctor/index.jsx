@@ -2,7 +2,7 @@ import { LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from
 import { Alert, Button, Input, Modal, Space, Switch, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FilterObjDropDown from '../../components/Filter/FilterObjDropDown';
-import FilterIcon from '../../components/Icon/CareStaff/Doctor/FilterIcon';
+import FilterIcon from '../../components/Icon/Doctor/FilterIcon';
 import CreateDoctor from './components/CreateDoctor';
 import './index.scss';
 import { toast } from 'react-toastify';
@@ -12,6 +12,7 @@ import Stroke from '../../components/Icon/CareStaff/Stoke';
 import ClinicApis from '../../apis/Clinic';
 import SpecialtyApis from '../../apis/Specialty';
 import UserApis from '../../apis/User';
+import { Link, useLocation } from 'react-router-dom';
 
 const listRole = [
   {
@@ -46,7 +47,6 @@ const listStatus = [
 ]
 
 const Doctor = () => {
-
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [search, setSearch] = useState('');
   const typingSearch = useRef(null);
@@ -69,6 +69,11 @@ const Doctor = () => {
   const [dataResponse, setDataResponse] = useState({});
   const [showBtn, setShowBtn] = useState([]);
   const [isShowModalDelete, setShowModalDelete] = useState(false);
+  let location = useLocation();
+
+  useEffect(() => {
+    document.title = 'Quản lý bác sĩ'
+  }, [])
 
   useEffect(() => {
     if (!isModalCreate && !isShowModalDelete)
@@ -247,7 +252,16 @@ const Doctor = () => {
       key: 'name',
       ellipsis: true,
       width: 100,
-      fixed: true
+      fixed: true,
+      render: (_, record) => (
+        <div
+          style={{
+            cursor: 'pointer',
+          }}
+        >
+          <Link to={location => `${location.pathname}/chi-tiet/${record.id}`}>{record.name}</Link>
+        </div>
+      )
     },
     {
       title: 'Email',

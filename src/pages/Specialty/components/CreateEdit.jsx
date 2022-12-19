@@ -89,7 +89,7 @@ const CreateEditSpecialty = ({
           <div>{type === 'create' ? 'Thêm chuyên khoa' : 'Sửa thông tin chuyên khoa'}</div>
         </>
       }
-      visible={isShowModal}
+      open={isShowModal}
       onCancel={() => {
         !loading && handleCancelModal()
       }}

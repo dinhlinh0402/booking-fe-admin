@@ -48,7 +48,6 @@ const CreateDoctor = ({
   const [form] = Form.useForm();
 
   useEffect(() => {
-
     !!isShowModal && getListClinic();
   }, [isShowModal])
 
@@ -57,6 +56,7 @@ const CreateDoctor = ({
       const dataRes = await ClinicApis.getClinics({
         pages: 1,
         take: 100,
+        active: true,
       })
       // console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {

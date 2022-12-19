@@ -13,7 +13,8 @@ import CareStaff from '../pages/CareStaff';
 import Clinic from '../pages/Clinic';
 import Specialty from '../pages/Specialty';
 import Schedules from '../pages/Schedules';
-import DetailCustomer from '../pages/Customers/Detail';
+import DetailCustomer from '../pages/Customers/components/Detail';
+import DetailDoctor from '../pages/Doctor/components/DetailDoctor';
 
 const RoutesAdmin = () => {
     return (
@@ -32,18 +33,29 @@ const RoutesAdmin = () => {
                             <Customers />
                         </RequireAuth>
                     </Route>
-                    <Route path='/admin/quan-ly-khach-hang/chi-tiet/:customerId'>
+                    <Route exact path='/admin/quan-ly-khach-hang/chi-tiet/:customerId'>
                         <RequireAuth>
                             <DetailCustomer />
                         </RequireAuth>
                     </Route>
-                    <Route path='*' render={() => <div>404 222</div>} />
+                    <Route path='*' render={() => <div>404</div>} />
                 </Switch>
             </Route>
             <Route path='/admin/quan-ly-bac-si'>
-                <RequireAuth>
-                    <Doctor />
-                </RequireAuth>
+                <Switch>
+                    <Route exact path='/admin/quan-ly-bac-si'>
+                        <RequireAuth>
+                            <Doctor />
+                        </RequireAuth>
+                    </Route>
+                    <Route exact path='/admin/quan-ly-bac-si/chi-tiet/:doctorId'>
+                        <RequireAuth>
+                            <DetailDoctor />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='*' render={() => <div>404</div>} />
+                </Switch>
+
             </Route>
 
             <Route path='/admin/nhan-vien-cham-soc'>

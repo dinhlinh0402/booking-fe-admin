@@ -24,10 +24,30 @@ const AddEditUser = ({
   isShowModal,
   type,
   handleCancelModal, // function cancel
+  dataCustomer, // data update from dertail customer
 }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const handleAddNewUser = async (value) => {
+
+  useEffect(() => {
+    if (type === 'update' && dataCustomer) {
+      form.setFieldsValue({
+        ...dataCustomer,
+        birthday: dataCustomer.birthday ? moment(dataCustomer.birthday) : null,
+
+      })
+    }
+  }, [dataCustomer])
+
+  const handleAddEditCustomer = async (value) => {
+    if (type === 'create') {
+      await addNewCustomer(value);
+    } else if (type === 'update' && dataCustomer) {
+      await updateCustomer(value);
+    }
+  }
+
+  const addNewCustomer = async (value) => {
     try {
       setLoading(true)
       const dataRes = await CustomerApis.createCustomer({
@@ -40,11 +60,32 @@ const AddEditUser = ({
         handleCancelModal();
       }
     } catch (error) {
+      console.log('error: ', error);
       setLoading(false);
       if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
         toast.error('Khách hàng đã tồn tại!');
       }
-      // toast.error('Lỗi');
+      toast.error('Thêm khách hàng không thành công!');
+    }
+  }
+
+  const updateCustomer = async (value) => {
+    try {
+      setLoading(true)
+      const dataRes = await CustomerApis.updateCustomer(dataCustomer.id, { ...value });
+      if (dataRes.status === 200) {
+        setLoading(false);
+        toast.success('Sửa thông tin khách hàng thành công');
+        handleCancelModal();
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setLoading(false);
+      if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
+        toast.error('Khách hàng đã tồn tại!');
+        return;
+      }
+      toast.error('Sửa thông tin khách hàng không thành công');
     }
   }
 
@@ -60,7 +101,7 @@ const AddEditUser = ({
           )}
         </>
       }
-      visible={isShowModal}
+      open={isShowModal}
       onCancel={() => {
         !loading && handleCancelModal()
       }}
@@ -70,7 +111,7 @@ const AddEditUser = ({
       <Spin spinning={loading}>
         <Form
           name='user'
-          onFinish={(values) => handleAddNewUser(values)}
+          onFinish={(values) => handleAddEditCustomer(values)}
           autoComplete='off'
           layout='vertical'
           form={form}
@@ -90,7 +131,8 @@ const AddEditUser = ({
                 <Input
                   size='middle'
                   className='txt_input'
-                  placeholder={'Họ'} />
+                  placeholder={dataCustomer?.firstName ? 'Họ' : 'Không có thông tin'}
+                />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -107,7 +149,8 @@ const AddEditUser = ({
                 <Input
                   size='middle'
                   className='txt_input'
-                  placeholder={'Tên đệm'} />
+                  placeholder={dataCustomer?.middleName ? 'Tên đệm' : 'Không có thông tin'}
+                />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -124,7 +167,8 @@ const AddEditUser = ({
                 <Input
                   size='middle'
                   className='txt_input'
-                  placeholder={'Tên'} />
+                  placeholder={dataCustomer?.lastName ? 'Tên' : 'Không có thông tin'}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -152,7 +196,8 @@ const AddEditUser = ({
                 <Input
                   size='middle'
                   className='txt_input'
-                  placeholder={'Email'} />
+                  placeholder={dataCustomer?.email ? 'Email' : 'Không có thông tin'}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -169,7 +214,7 @@ const AddEditUser = ({
                 <Select
                   style={{ width: '100%' }}
                   size='middle'
-                  placeholder={true ? 'Chọn giới tính' : 'Không có thông tin'}
+                  placeholder={dataCustomer?.gender ? 'Chọn giới tính' : 'Không có thông tin'}
                   className='txt_input'
                 >
                   {listGender.map((item, index) => (
@@ -194,7 +239,7 @@ const AddEditUser = ({
                 <Input
                   className='txt_input'
                   size='middle'
-                  placeholder={true ? 'Số điện thoại' : 'Không có thông tin'}
+                  placeholder={dataCustomer?.phoneNumber ? 'Số điện thoại' : 'Không có thông tin'}
                 />
               </Form.Item>
             </Col>
@@ -204,7 +249,7 @@ const AddEditUser = ({
                   picker='date'
                   showNow={false}
                   // showTime
-                  placeholder={true ? 'Chọn ngày' : 'Không có thông tin'}
+                  placeholder={dataCustomer?.birthday ? 'Chọn ngày' : 'Không có thông tin'}
                   size={'middle'}
                   format={'DD/MM/YYYY'}
                   style={{
@@ -231,7 +276,7 @@ const AddEditUser = ({
                 <Input
                   className='txt_input'
                   size='middle'
-                  placeholder={true ? 'Địa chỉ' : 'Không có thông tin'}
+                  placeholder={dataCustomer?.address ? 'Địa chỉ' : 'Không có thông tin'}
                 />
               </Form.Item>
             </Col>

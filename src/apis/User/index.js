@@ -16,6 +16,11 @@ const UserApis = {
   changeStatus(data) {
     const urlParam = 'user/change-status';
     return requestClient.put(urlParam, data);
+  },
+
+  getUserById(params) {
+    const urlParam = `user/${params}`;
+    return requestClient.get(urlParam);
   }
 };
 
