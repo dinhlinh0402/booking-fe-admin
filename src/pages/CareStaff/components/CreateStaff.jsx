@@ -23,39 +23,88 @@ const listGender = [
 const CreateStaff = ({
   isShowModal,
   type,
+  detailStaff,
   handleCancelModal, // function cancel
 }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const handleAddNewStaff = async (value) => {
-    try {
-      setLoading(true)
-      const dataRes = await CareStaffApis.createCareStaff({
-        ...value,
-        role: 'ADMIN',
+
+  console.log('detailStaff: ', detailStaff);
+
+  useEffect(() => {
+    if (type === 'update' && !!detailStaff) {
+      form.setFieldsValue({
+        firstName: detailStaff?.firstName || '',
+        middleName: detailStaff?.middleName || '',
+        lastName: detailStaff?.lastName || '',
+        email: detailStaff?.email || '',
+        phoneNumber: detailStaff?.phoneNumber || null,
+        gender: detailStaff?.gender || null,
+        birthday: detailStaff?.birthday ? moment(detailStaff.birthday) : null,
+        address: detailStaff?.address || '',
       })
-      // 
-      if (dataRes.status === 200) {
-        setLoading(false);
-        toast.success('Thêm nhân viên thành công');
-        handleCancelModal();
-        form.setFieldsValue({
-          firstName: '',
-          middleName: '',
-          lastName: '',
-          email: '',
-          phoneNumber: '',
-          gender: undefined,
-          birthday: undefined,
-          address: '',
+    }
+  }, [detailStaff])
+
+  const handleSubmitStaff = async (value) => {
+    if (type === 'create') {
+      try {
+        setLoading(true)
+        const dataRes = await CareStaffApis.createCareStaff({
+          ...value,
+          role: 'ADMIN',
         })
+        // 
+        if (dataRes.status === 200) {
+          setLoading(false);
+          toast.success('Thêm nhân viên thành công');
+          handleCancelModal();
+          form.setFieldsValue({
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            email: '',
+            phoneNumber: '',
+            gender: undefined,
+            birthday: undefined,
+            address: '',
+          })
+        }
+      } catch (error) {
+        setLoading(false);
+        if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
+          toast.error('Nhân viên đã tồn tại!');
+        }
+        toast.error('Lỗi');
       }
-    } catch (error) {
-      setLoading(false);
-      if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
-        toast.error('Nhân viên đã tồn tại!');
+    } else if (type === 'update' && !!detailStaff) {
+      try {
+        setLoading(true);
+        const dataRes = await CareStaffApis.updateCareStaff(value, detailStaff.id)
+        // 
+        if (dataRes.status === 200) {
+          setLoading(false);
+          toast.success('Cập nhật thông tin nhân viên thành công');
+          handleCancelModal();
+          form.setFieldsValue({
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            email: '',
+            phoneNumber: '',
+            gender: undefined,
+            birthday: undefined,
+            address: '',
+          })
+        }
+      } catch (error) {
+        setLoading(false);
+        if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
+          toast.error('Nhân viên đã tồn tại!');
+          return;
+        }
+        toast.error('Cập nhật thông tin nhân viên không thành công!');
       }
-      toast.error('Lỗi');
     }
   }
 
@@ -81,7 +130,7 @@ const CreateStaff = ({
       <Spin spinning={loading}>
         <Form
           name='user'
-          onFinish={(values) => handleAddNewStaff(values)}
+          onFinish={(values) => handleSubmitStaff(values)}
           autoComplete='off'
           layout='vertical'
           form={form}

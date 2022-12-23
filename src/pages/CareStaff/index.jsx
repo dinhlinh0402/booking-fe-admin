@@ -24,9 +24,11 @@ const CareStaff = () => {
     pageSize: 10,
   });
   const [isShowModalDelete, setShowModalDelete] = useState(false);
+  const [typeModal, setTypeModal] = useState('create');
+  const [detailStaff, setDetailStaff] = useState({});
 
   useEffect(() => {
-    if (!isModalCreate || !isShowModalDelete)
+    if (!isModalCreate && !isShowModalDelete)
       getListCareStaff()
   }, [pagination, search, isModalCreate, isShowModalDelete])
 
@@ -90,11 +92,14 @@ const CareStaff = () => {
           const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
           return {
             id: item.id || '',
+            firstName: item.firstName || '',
+            middleName: item.middleName || '',
+            lastName: item.lastName || '',
             status: item.status,
             name: name || '',
             email: item.email || '',
-            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
-            birthday: item.birthday ? moment(item.birthday).format('DD/MM/YYYY') : '',
+            gender: item.gender || '',
+            birthday: item.birthday || null,
             phoneNumber: item.phoneNumber || '',
             address: item.address || '',
             identityCardNumber: item.identityCardNumber || ''
@@ -148,8 +153,17 @@ const CareStaff = () => {
       key: 'name',
       width: 100,
       ellipsis: true,
-      render: (value) => (
-        <div>{value}</div>
+      render: (_, record) => (
+        <div>
+          <span
+            className='name_staff'
+            onClick={() => {
+              setTypeModal('update');
+              setDetailStaff(record);
+              setModalCreate(true);
+            }}
+          >{record.name}</span>
+        </div>
       ),
     },
     {
@@ -166,13 +180,19 @@ const CareStaff = () => {
       title: 'Giới tính',
       dataIndex: 'gender',
       key: 'gender',
-      width: 40
+      width: 40,
+      render: (value) => (
+        <div>{value === 'FEMALE' ? 'Nữ' : value === 'MALE' ? 'Nam' : 'Khác' || ''}</div>
+      )
     },
     {
       title: 'Ngày sinh',
       dataIndex: 'birthday',
       key: 'birthday',
-      width: 65
+      width: 65,
+      render: (value) => (
+        <div>{value ? moment(value).format('DD/MM/YYYY') : ''}</div>
+      )
     },
     {
       title: 'Số điện thoại',
@@ -233,7 +253,7 @@ const CareStaff = () => {
     setShowModalDelete(false);
     setSelectedRowKeys([]);
   };
-  console.log('button: ', showBtn);
+
   return (
     <div>
       <h1>Danh sách nhân viên</h1>
@@ -253,7 +273,10 @@ const CareStaff = () => {
             size="large"
             type="primary"
             icon={<PlusCircleOutlined />}
-            onClick={() => setModalCreate(true)}
+            onClick={() => {
+              setTypeModal('create');
+              setModalCreate(true);
+            }}
           >
             Thêm mới
           </Button>
@@ -314,7 +337,8 @@ const CareStaff = () => {
 
       <CreateStaff
         isShowModal={isModalCreate}
-        type={'create'}
+        type={typeModal}
+        detailStaff={detailStaff}
         handleCancelModal={() => setModalCreate(false)}
       />
 

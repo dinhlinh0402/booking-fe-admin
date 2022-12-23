@@ -39,3 +39,29 @@
     height: 40px;
   }
 }
+
+.doctor_introduce {
+  .header_doctor_introduce {
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+
+    .button_edit {
+      button {
+        height: 40px;
+      }
+    }
+  }
+
+  .btn_add {
+    background: #0064e6;
+    border-radius: 5px;
+    height: 40px;
+  }
+  
+  .btn_cancel {
+    margin-right: 15px;
+    border-radius: 5px;
+    height: 40px;
+  }
+}
