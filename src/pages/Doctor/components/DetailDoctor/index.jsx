@@ -11,57 +11,12 @@ import BackIcon from '../../../../components/Icon/Common/BackIcon';
 import './index.scss';
 import DoctorApis from '../../../../apis/Doctor';
 import { toast } from 'react-toastify';
+import { listGender } from '../../../../common/constants/gender';
+import { listRole, listPositon, listPayment } from '../../../../common/constants/doctor';
+import baseURL from '../../../../utils/url';
 
 const { TextArea } = Input;
 const { Option } = Select;
-
-const listGender = [
-  {
-    key: 'MALE',
-    value: 'Nam'
-  },
-  {
-    key: 'FEMALE',
-    value: 'Nữ'
-  },
-  {
-    key: 'ORTHER',
-    value: 'Khác'
-  }
-]
-
-const listRole = [
-  {
-    key: 'HEAD_OF_DOCTOR',
-    value: 'Trưởng khoa'
-  },
-  {
-    key: 'DOCTOR',
-    value: 'Bác sĩ'
-  },
-  {
-    key: 'MANAGER_CLINIC',
-    value: 'Quản lý phòng khám'
-  }
-]
-
-const listPositon = [
-  {
-    key: 'NONE',
-    value: 'Bác sĩ',
-  },
-  {
-    key: 'MASTER',
-    value: 'Thạc sĩ'
-  }
-];
-
-const listPayment = [
-  {
-    key: 'CASH',
-    value: 'Thanh toán bằng thẻ'
-  }
-]
 
 const modulesQill = {
   toolbar: [
@@ -123,7 +78,7 @@ const DetailDoctor = () => {
     }
     getListClinic();
     getListSpecialty();
-  }, [doctorId, doctorInforId]);
+  }, [doctorId]);
 
   const getInfoDoctor = async (doctorId) => {
     setLoading(true);
@@ -160,7 +115,7 @@ const DetailDoctor = () => {
           uid: '-1',
           name: 'image.jpg',
           status: 'done',
-          url: `http://14.225.255.59:8000/${data.avatar}`
+          url: `${baseURL}${data.avatar}`
         }] : []);
 
         form.setFieldsValue({
@@ -182,8 +137,17 @@ const DetailDoctor = () => {
         })
         setDataDoctorRes(data);
         if (data?.doctorInfor) {
-          setDoctorInforId(data?.doctorInfor || '');
-          await getInfoDoctorExtra(data.doctorInfor);
+          const { doctorInfor } = data;
+          setDoctorInforId(data?.doctorInfor?.id || '');
+          // await getInfoDoctorExtra(data?.doctorInfor || {});
+          formIntroduce.setFieldsValue({
+            position: doctorInfor?.position || null,
+            price: doctorInfor?.price || 0,
+            payment: doctorInfor?.payment || null,
+            introduct: doctorInfor?.introduct || null,
+            note: doctorInfor?.note || null,
+            description: doctorInfor?.description || null,
+          })
         }
         setLoading(false);
       }
@@ -326,6 +290,7 @@ const DetailDoctor = () => {
         setLoading(false);
         setEditInformation(false);
         toast.success('Cập nhật thông tin nhân viên thành công');
+        setEditInformation(false);
       }
     } catch (error) {
       console.log('error: ', error);
@@ -352,6 +317,7 @@ const DetailDoctor = () => {
         if (dataSaveDoctorInfo?.status === 200) {
           toast.success('Thêm giới thiệu bác sĩ thành công');
           setLoading(false);
+          setEditIntroduce(false);
         }
       } catch (error) {
         console.log('error: ', error);
@@ -360,7 +326,22 @@ const DetailDoctor = () => {
       }
 
     } else {
+      // cCập nhật thông tin giới thiệu
       console.log('sửa');
+      try {
+        console.log('doctorInforId: ', doctorInforId);
+        const dataSaveDoctorInfo = await DoctorApis.updateDoctorInfoExtra(values, doctorInforId);
+        console.log('dataSaveDoctorInfo: ', dataSaveDoctorInfo);
+        if (dataSaveDoctorInfo?.status === 200) {
+          toast.success('Thay đổi thông tin giới thiệu bác sĩ thành công');
+          setLoading(false);
+          setEditIntroduce(false);
+        }
+      } catch (error) {
+        console.log('error: ', error);
+        toast.error('Thay đổi thông tin giới thiệu bác sĩ không thành công!');
+        setLoading(false);
+      }
     }
   }
 
@@ -847,36 +828,41 @@ const DetailDoctor = () => {
                           label={<span className='txt_label'>Mô tả bác sĩ</span>}
                         >
                           <ReactQuill
+                            disabled={!editIntroduce}
                             theme="snow"
                             placeholder="Mô tả"
                             modules={modulesQill}
                             formats={formats}
                             // bounds={'#root'}
-                            style={{ height: "300px" }}
+                            style={{ height: "500px" }}
                           />
                         </Form.Item>
                       </Col>
 
                       {editIntroduce && doctorInforId && (
-                        <Col span={24} style={{ textAlign: 'center' }}>
-                          <Button className='btn_cancel' danger size='middle' onClick={() => setEditInformation(false)}>
-                            Hủy chỉnh sửa
-                          </Button>
-                          <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
-                            Cập nhật
-                          </Button>
-                        </Col>
+                        <div style={{ textAlign: 'center', marginTop: '30px', width: '100%' }}>
+                          <Col span={24} style={{ textAlign: 'center', marginTop: '20px !important' }}>
+                            <Button className='btn_cancel' danger size='middle' onClick={() => setEditInformation(false)}>
+                              Hủy chỉnh sửa
+                            </Button>
+                            <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
+                              Cập nhật
+                            </Button>
+                          </Col>
+                        </div>
                       )}
 
                       {editIntroduce && !doctorInforId && (
-                        <Col span={24} style={{ textAlign: 'center' }}>
-                          <Button className='btn_cancel' danger size='middle' onClick={() => setEditInformation(false)}>
-                            Hủy
-                          </Button>
-                          <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
-                            Thêm
-                          </Button>
-                        </Col>
+                        <div style={{ textAlign: 'center', marginTop: '30px', width: '100%' }}>
+                          <Col span={24} >
+                            <Button className='btn_cancel' danger size='middle' onClick={() => setEditInformation(false)}>
+                              Hủy
+                            </Button>
+                            <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
+                              Thêm
+                            </Button>
+                          </Col>
+                        </div>
                       )}
 
                     </Row>

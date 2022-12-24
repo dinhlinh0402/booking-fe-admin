@@ -15,6 +15,7 @@ import Specialty from '../pages/Specialty';
 import Schedules from '../pages/Schedules';
 import DetailCustomer from '../pages/Customers/components/Detail';
 import DetailDoctor from '../pages/Doctor/components/DetailDoctor';
+import DetailClinic from '../pages/Clinic/components/DetailClinic';
 
 const RoutesAdmin = () => {
     return (
@@ -65,9 +66,19 @@ const RoutesAdmin = () => {
             </Route>
 
             <Route path='/admin/quan-ly-phong-kham'>
-                <RequireAuth>
-                    <Clinic />
-                </RequireAuth>
+                <Switch>
+                    <Route exact path='/admin/quan-ly-phong-kham'>
+                        <RequireAuth>
+                            <Clinic />
+                        </RequireAuth>
+                    </Route>
+                    <Route exact path='/admin/quan-ly-phong-kham/chi-tiet/:clinicId'>
+                        <RequireAuth>
+                            <DetailClinic />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='*' render={() => <div>404</div>} />
+                </Switch>
             </Route>
 
             <Route path='/admin/quan-ly-chuyen-khoa'>

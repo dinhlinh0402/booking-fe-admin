@@ -26,6 +26,11 @@ const DoctorApis = {
   updateDoctor(data, doctorId) {
     const urlParam = `user/${doctorId}`;
     return requestClient.put(urlParam, data);
+  },
+
+  updateDoctorInfoExtra(data, doctorInforId) {
+    const ulrParam = `doctor-infor/${doctorInforId}`;
+    return requestClient.put(ulrParam, data);
   }
 }
 

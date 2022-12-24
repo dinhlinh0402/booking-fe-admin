@@ -20,6 +20,11 @@ const ClinicApis = {
   createClinic(data) {
     const urlParam = 'clinic';
     return requestClient.post(urlParam, data);
+  },
+
+  getClinicById(clinicId) {
+    const urlParam = `clinic/${clinicId}`;
+    return requestClient.get(urlParam);
   }
 };
 

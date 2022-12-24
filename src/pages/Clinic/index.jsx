@@ -9,6 +9,7 @@ import FilterIcon from '../../components/Icon/Doctor/FilterIcon';
 import Stroke from '../../components/Icon/CareStaff/Stoke';
 import CreateClinic from './components/CreateClinic';
 import './index.scss';
+import { Link } from 'react-router-dom';
 
 
 const listStatus = [
@@ -161,7 +162,16 @@ const Clinic = () => {
       key: 'name',
       ellipsis: true,
       width: 100,
-      fixed: true
+      fixed: true,
+      render: (_, record) => (
+        <div
+          style={{
+            cursor: 'pointer',
+          }}
+        >
+          <Link to={location => `${location.pathname}/chi-tiet/${record.id}`}>{record.name}</Link>
+        </div>
+      )
     },
     {
       title: 'Email',
