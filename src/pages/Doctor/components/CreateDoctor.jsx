@@ -144,7 +144,7 @@ const CreateDoctor = ({
           <div>Thêm bác sĩ</div>
         </>
       }
-      visible={isShowModal}
+      open={isShowModal}
       onCancel={() => {
         !loading && handleCancelModal()
       }}

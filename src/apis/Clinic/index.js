@@ -25,6 +25,22 @@ const ClinicApis = {
   getClinicById(clinicId) {
     const urlParam = `clinic/${clinicId}`;
     return requestClient.get(urlParam);
+  },
+
+  updateClinic(data, clinicId) {
+    const urlParam = `clinic/${clinicId}`;
+    return requestClient.put(urlParam, data);
+  },
+
+  createClinicIntroduct(data) {
+    const urlParam = 'clinic-infor';
+    return requestClient.post(urlParam, data);
+  },
+
+  updateClinicIntroduct(clinicInforId, data) {
+    const urlParam = `clinic-infor/${clinicInforId}`;
+    return requestClient.put(urlParam, data);
+
   }
 };
 

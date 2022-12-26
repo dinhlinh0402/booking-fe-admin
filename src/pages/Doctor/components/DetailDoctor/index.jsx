@@ -84,7 +84,6 @@ const DetailDoctor = () => {
     setLoading(true);
     try {
       const dataRes = await UserApis.getUserById(doctorId);
-      // console.log('dataRes: ', dataRes);
       if (dataRes.status === 200) {
         const { data } = dataRes
         setDataDoctor({
@@ -157,15 +156,6 @@ const DetailDoctor = () => {
     }
   }
 
-  const getInfoDoctorExtra = async (doctorInforId) => {
-    try {
-      const dataRes = await DoctorApis.getDoctorInfoExtra(doctorInforId);
-      console.log('dataRes: ', dataRes);
-    } catch (error) {
-      console.log('error: ', error);
-    }
-  }
-
   const getListClinic = async () => {
     setLoading(true);
     try {
@@ -174,7 +164,6 @@ const DetailDoctor = () => {
         take: 100,
         active: true,
       })
-      // console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listOptionsClinic = data.map(item => {
@@ -199,7 +188,6 @@ const DetailDoctor = () => {
         pages: 1,
         take: 100,
       })
-      // console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listSpecialty = data?.map(item => {
@@ -253,7 +241,6 @@ const DetailDoctor = () => {
   }
 
   const onChangeAvatar = ({ fileList: newFileList }) => {
-    console.log('newFileList: ', newFileList);
     setFileListAvatar(newFileList);
   };
 
@@ -266,13 +253,12 @@ const DetailDoctor = () => {
     } else if (value?.avatar?.fileList?.length > 0) {
       const fileSize = value?.avatar?.fileList[0]?.size;
       const isLt2M = fileSize / 1024 / 1024 < 2;
-      console.log('isLt2M: ', isLt2M);
+      // console.log('isLt2M: ', isLt2M);
       if (!isLt2M) {
         message.error('Chọn ảnh nhỏ hơn 2MB!');
       }
       let formData = new FormData();
       const { avatar, ...resData } = value;
-      console.log('resData: ', resData);
       for (const item in value) {
         if (item === 'avatar') {
           formData.append('file', value[item].fileList[0]?.originFileObj);
@@ -282,7 +268,6 @@ const DetailDoctor = () => {
       // formData.append('file', avatar?.fileList[0]?.originFileObj);
       newData = formData;
     }
-    console.log('newData: ', newData);
 
     try {
       const dataRes = await DoctorApis.updateDoctor(newData, doctorId);
@@ -304,16 +289,13 @@ const DetailDoctor = () => {
   }
 
   const handleUpdateDoctorIntroduce = async (values) => {
-    console.log('value: ', values)
     setLoading(true);
     if (!doctorInforId && Object.keys(dataDoctorInfo).length === 0) {
-      console.log('thêm');
       try {
         const dataSaveDoctorInfo = await DoctorApis.createDoctorInfor({
           ...values,
           doctorId: doctorId,
         })
-        console.log('dataSaveDoctorInfo: ', dataSaveDoctorInfo);
         if (dataSaveDoctorInfo?.status === 200) {
           toast.success('Thêm giới thiệu bác sĩ thành công');
           setLoading(false);
@@ -327,11 +309,8 @@ const DetailDoctor = () => {
 
     } else {
       // cCập nhật thông tin giới thiệu
-      console.log('sửa');
       try {
-        console.log('doctorInforId: ', doctorInforId);
         const dataSaveDoctorInfo = await DoctorApis.updateDoctorInfoExtra(values, doctorInforId);
-        console.log('dataSaveDoctorInfo: ', dataSaveDoctorInfo);
         if (dataSaveDoctorInfo?.status === 200) {
           toast.success('Thay đổi thông tin giới thiệu bác sĩ thành công');
           setLoading(false);

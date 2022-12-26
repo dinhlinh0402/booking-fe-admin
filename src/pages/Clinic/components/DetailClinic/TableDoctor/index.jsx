@@ -86,7 +86,6 @@ const TableDoctor = ({ clinicId }) => {
         specialtyIds: checkedList.specialty || undefined,
         q: search || undefined,
       })
-      console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listDoctor = data.map(item => {
@@ -115,31 +114,8 @@ const TableDoctor = ({ clinicId }) => {
   }
 
   useEffect(() => {
-    // getListClinic();
     getListSpecialty();
   }, [])
-
-  // const getListClinic = async () => {
-  //   try {
-  //     const dataRes = await ClinicApis.getClinics({
-  //       pages: 1,
-  //       take: 100,
-  //     })
-  //     if (dataRes?.data?.data) {
-  //       const { data } = dataRes?.data;
-  //       const listOptionsClinic = data.map(item => {
-  //         return {
-  //           id: item.id,
-  //           name: item?.name || '',
-  //         }
-  //       })
-  //       setListClinic(listOptionsClinic || []);
-  //     }
-  //   } catch (error) {
-  //     console.log('error: ', error);
-  //     setListClinic([]);
-  //   }
-  // }
 
   const getListSpecialty = async () => {
     try {
@@ -302,7 +278,6 @@ const TableDoctor = ({ clinicId }) => {
   ]
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 

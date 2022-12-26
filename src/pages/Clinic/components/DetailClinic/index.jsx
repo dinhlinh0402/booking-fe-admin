@@ -71,15 +71,18 @@ const DetailClinic = () => {
             </Space>
           </div>
 
-          <Tabs>
+          <Tabs defaultActiveKey='table_doctor'>
             <Tabs.TabPane tab="Danh sách bác sĩ" key="table_doctor">
               <TableDoctor clinicId={clinicId} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="Thông tin phòng khám" key="clinic_information">
-              <TabClinicInformation />
+              <TabClinicInformation dataClinic={dataClinic || {}} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="Giới thiệu về phòng khám" key="clinic_introduce">
-              <TabClinicIntroduce />
+              <TabClinicIntroduce
+                dataClinicIntroduce={dataClinic?.clinicInfor || {}}
+                clinicId={clinicId}
+              />
             </Tabs.TabPane>
           </Tabs>
         </>
