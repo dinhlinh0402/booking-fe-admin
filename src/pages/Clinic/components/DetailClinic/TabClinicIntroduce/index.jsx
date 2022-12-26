@@ -65,7 +65,6 @@ const TabClinicIntroduce = ({ dataClinicIntroduce, clinicId }) => {
 
   const handleClinicIntroduce = async (values) => {
     setLoading(true);
-    console.log('values: ', values);
     if (Object.keys(dataClinicIntroduce).length && clinicId) {
       try {
         const clinicInforRes = await ClinicApis.updateClinicIntroduct(dataClinicIntroduce.id, values);
