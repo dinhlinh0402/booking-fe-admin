@@ -67,7 +67,6 @@ const TabClinicIntroduce = ({ dataClinicIntroduce, clinicId }) => {
     setLoading(true);
     console.log('values: ', values);
     if (Object.keys(dataClinicIntroduce).length && clinicId) {
-      console.log('sua');
       try {
         const clinicInforRes = await ClinicApis.updateClinicIntroduct(dataClinicIntroduce.id, values);
         if (clinicInforRes?.status === 200) {
@@ -86,7 +85,6 @@ const TabClinicIntroduce = ({ dataClinicIntroduce, clinicId }) => {
           ...values,
           clinicId: clinicId,
         });
-        console.log('clinicInforRes: ', clinicInforRes);
         if (clinicInforRes?.status === 200) {
           toast.success('Thêm giới thiệu phòng khám thành công');
           setLoading(false);
