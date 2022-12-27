@@ -6,6 +6,9 @@ import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import SpecialtyApis from "../../../apis/Specialty";
+import { useEffect } from "react";
+import baseURL from "../../../utils/url";
+
 const modulesQill = {
   toolbar: [
     [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
@@ -43,43 +46,104 @@ const CreateEditSpecialty = ({
   isShowModal,
   handleCancelModal,
   type,
+  dataUpdate,
 }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [fileListImage, setFileListImage] = useState([]);
 
+  useEffect(() => {
+    if (type === 'update' && Object.keys(dataUpdate).length) {
+      form.setFieldsValue({
+        name: dataUpdate?.name || null,
+        image: dataUpdate?.image || null,
+        description: dataUpdate?.description || null,
+      });
+      setFileListImage(dataUpdate?.image ? [{
+        uid: '-1',
+        name: 'image.jpg',
+        status: 'done',
+        url: `${baseURL}${dataUpdate.image}`,
+      }] : [])
+    }
+  }, [type, dataUpdate])
 
-  const handleAddNewSpecialty = async (value) => {
+  const handleSubmitSpecialty = async (value) => {
     console.log('value: ', value);
-    const fileSize = value?.image?.fileList[0]?.size;
-    const isLt2M = fileSize / 1024 / 1024 < 2;
-    console.log('isLt2M: ', isLt2M);
-    if (!isLt2M) {
-      message.error('Chọn ảnh nhỏ hơn 2MB!');
-    }
-    try {
-      setLoading(true)
-      let formData = new FormData();
-      formData.append('file', value?.image?.fileList[0]?.originFileObj);
-      formData.append('name', value?.name);
-      formData.append('description', value?.description);
-      const dataRes = await SpecialtyApis.createSpecialty(formData);
-      if (dataRes.status === 200) {
-        setLoading(false);
-        toast.success('Thêm chuyên khoa thành công');
-        handleCancelModal();
-        form.setFieldsValue({
-          name: '',
-          image: null,
-          description: '',
-        })
+    setLoading(true);
+    if (type === 'create' && Object.keys(dataUpdate).length === 0) {
+      const fileSize = value?.image?.fileList[0]?.size;
+      const isLt2M = fileSize / 1024 / 1024 < 2;
+      console.log('isLt2M: ', isLt2M);
+      if (!isLt2M) {
+        message.error('Chọn ảnh nhỏ hơn 2MB!');
       }
-    } catch (error) {
-      console.log('error: ', error);
-      setLoading(false);
-      toast.error('Lỗi!');
+      try {
+        let formData = new FormData();
+        formData.append('file', value?.image?.fileList[0]?.originFileObj);
+        formData.append('name', value?.name);
+        formData.append('description', value?.description);
+        const dataRes = await SpecialtyApis.createSpecialty(formData);
+        if (dataRes.status === 200) {
+          setLoading(false);
+          toast.success('Thêm chuyên khoa thành công');
+          handleCancelModal();
+          form.setFieldsValue({
+            name: '',
+            image: null,
+            description: '',
+          })
+        }
+      } catch (error) {
+        console.log('error: ', error);
+        setLoading(false);
+        toast.error('Thêm chuyên khoa không thành công!');
+      }
+    } else if (type === 'update' && Object.keys(dataUpdate).length) {
+      console.log('update');
+      let newData = {};
+      if (value.image === dataUpdate.image || (!value.image) || (value.image && value?.image?.fileList?.length === 0)) {
+        const { image, ...res } = value;
+        newData = res;
+      } else if (value?.image?.fileList?.length > 0) {
+        const fileSize = value?.image?.fileList[0]?.size;
+        const isLt2M = fileSize / 1024 / 1024 < 2;
+        // console.log('isLt2M: ', isLt2M);
+        if (!isLt2M) {
+          message.error('Chọn ảnh nhỏ hơn 2MB!');
+          return;
+        }
+        let formData = new FormData();
+        for (const item in value) {
+          if (item === 'image') {
+            formData.append('file', value[item].fileList[0]?.originFileObj);
+          } else {
+            formData.append(item, value[item]);
+          }
+        }
+        newData = formData;
+      }
+      try {
+        const updateSpecialty = await SpecialtyApis.updateSpecialty(dataUpdate.id, newData);
+        console.log('updateSpecialty: ', updateSpecialty);
+        if (updateSpecialty.status === 200) {
+          setLoading(false);
+          toast.success('Cập nhật thông tin chuyên khoa thành công');
+          handleCancelModal();
+          form.resetFields();
+          setFileListImage([]);
+        }
+      } catch (error) {
+        console.log('error: ', error);
+        setLoading(false);
+        toast.error('Cập nhật thông tin chuyên khoa không thành công!')
+      }
     }
-
   }
+
+  const onChangeImage = ({ fileList: newFileList }) => {
+    setFileListImage(newFileList);
+  };
 
   return (
     <Modal
@@ -91,7 +155,10 @@ const CreateEditSpecialty = ({
       }
       open={isShowModal}
       onCancel={() => {
-        !loading && handleCancelModal()
+        if (!loading) {
+          handleCancelModal();
+          form.resetFields();
+        }
       }}
       height={550}
       width={700}
@@ -100,7 +167,7 @@ const CreateEditSpecialty = ({
       <Spin spinning={loading}>
         <Form
           name='user'
-          onFinish={(values) => handleAddNewSpecialty(values)}
+          onFinish={(values) => handleSubmitSpecialty(values)}
           autoComplete='off'
           layout='vertical'
           form={form}
@@ -130,14 +197,16 @@ const CreateEditSpecialty = ({
                   label={<span className='txt_label'>Ảnh chuyên khoa</span>}
                   rules={[
                     {
-                      required: true,
-                      message: 'Tên chuyên khoa không được để trống',
+                      required: (type === 'update' && Object.keys(dataUpdate).length) ? false : true,
+                      message: 'Ảnh chuyên khoa không được để trống',
                     }
                   ]}
                 >
                   <Upload
                     listType="picture-card"
                     beforeUpload={() => false}
+                    fileList={fileListImage}
+                    onChange={onChangeImage}
                     maxCount={1}
                   >
                     <div>
@@ -176,7 +245,7 @@ const CreateEditSpecialty = ({
               Hủy
             </Button>
             <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
-              {type === 'create' ? 'Thêm chuyên khoa' : 'Lưu'}
+              {type === 'create' ? 'Thêm chuyên khoa' : 'Cập nhật'}
             </Button>
           </Col>
         </Form>

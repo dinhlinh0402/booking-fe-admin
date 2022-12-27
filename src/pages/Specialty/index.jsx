@@ -21,6 +21,8 @@ const Specialty = () => {
   const [dataResponse, setDataResponse] = useState({});
   const [isShowModal, setShowModal] = useState(false);
   const [isShowModalDelete, setShowModalDelete] = useState(false);
+  const [typeModal, setTypeModal] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState({});
 
   useEffect(() => {
     if (!isShowModal && !isShowModalDelete)
@@ -44,7 +46,7 @@ const Specialty = () => {
             description: item.description || '',
             createdDate: item.createdDate ? moment(item.createdDate).format('DD/MM/YYYY') : '',
             lastModifiedDate: item.lastModifiedDate ? moment(item.lastModifiedDate).format('DD/MM/YYYY') : '',
-
+            image: item.image || '',
           }
         })
         setListSpecialty(listSpecialtyData || []);
@@ -78,7 +80,19 @@ const Specialty = () => {
       key: 'name',
       ellipsis: true,
       width: '20%',
-      fixed: true
+      fixed: true,
+      render: (_, record) => (
+        <div
+          className='name_specialty'
+          onClick={() => {
+            setTypeModal('update');
+            setShowModal(true);
+            setDataUpdate(record);
+          }}
+        >
+          {record.name}
+        </div>
+      )
     },
     {
       title: 'Mô tả',
@@ -155,7 +169,10 @@ const Specialty = () => {
             size="large"
             type="primary"
             icon={<PlusCircleOutlined />}
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setTypeModal('create');
+              setShowModal(true);
+            }}
           >
             Thêm mới
           </Button>
@@ -212,13 +229,17 @@ const Specialty = () => {
       {isShowModal && (
         <CreateEditSpecialty
           isShowModal={isShowModal}
-          handleCancelModal={() => setShowModal(false)}
-          type={'create'}
+          handleCancelModal={() => {
+            setShowModal(false);
+            setDataUpdate({});
+          }}
+          type={typeModal}
+          dataUpdate={dataUpdate}
         />
       )}
 
       <Modal
-        visible={isShowModalDelete}
+        open={isShowModalDelete}
         onOk={handleDeleteSpecialty}
         onCancel={() => setShowModalDelete(false)}
         cancelText={'Hủy'}

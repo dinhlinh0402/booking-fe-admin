@@ -21,11 +21,12 @@ const SpecialtyApis = {
   deleteSpecialty(data) {
     const urlParam = 'specialty';
     return requestClient.delete(urlParam, { data })
+  },
+
+  updateSpecialty(specialtyId, data) {
+    const urlParam = `specialty/${specialtyId}`;
+    return requestClient.put(urlParam, data);
   }
-  // createCareStaff(data) {
-  //   const urlParam = 'user';
-  //   return requestClient.post(urlParam, data)
-  // }
 };
 
 

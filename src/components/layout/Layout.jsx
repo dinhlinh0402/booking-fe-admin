@@ -6,32 +6,58 @@ import Sidebar from '../sidebar/Sidebar'
 import TopNav from '../topnav/TopNav'
 // import Routes from '../Routes'
 
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { useSelector, useDispatch } from 'react-redux'
 
 import ThemeAction from '../../redux/actions/ThemeAction';
 import TestRouter from '../../pages/TestRouter';
 import RoutesAdmin from '../Routes';
+import Login from '../../pages/Auth/Login';
+import RoutesDoctor from '../RoutesDoctor';
+import { useState } from 'react';
+import AuthApis from '../../apis/Auth';
+import { toast } from 'react-toastify';
 
 const Layout = () => {
+    // const [user, setUser] = useState({})
+    let history = useHistory();
+    // let location = useLocation();
+    console.log('history: ', history);
 
     const themeReducer = useSelector(state => state.ThemeReducer)
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        const themeClass = localStorage.getItem('themeMode', 'theme-mode-light')
-
-        const colorClass = localStorage.getItem('colorMode', 'theme-mode-light')
+        const themeClass = localStorage.getItem('themeMode', 'theme-mode-light');
+        const colorClass = localStorage.getItem('colorMode', 'theme-mode-light');
 
         dispatch(ThemeAction.setMode(themeClass))
-
         dispatch(ThemeAction.setColor(colorClass))
     }, [dispatch])
 
+    // useEffect(() => {
+    //     checkToken();
+    // }, []);
+
+    /// check user ở đây
+    const checkToken = async () => {
+        try {
+            const dataCheckToken = await AuthApis.authMe();
+            console.log('dataCheckToken: ', dataCheckToken);
+        } catch (error) {
+            console.log('error: ', error);
+            toast.error('Hết phiên đăng nhập!');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('user');
+            history.push('/login');
+        }
+    }
+
     const user = JSON.parse(localStorage.getItem('user'));
-    console.log('user: ', user);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('use: ', user);
 
     return (
         <>
@@ -40,25 +66,37 @@ const Layout = () => {
                     <TestRouter />
                 </Route> */}
 
+
                 <Switch>
-                    <Route path='/' exact render={() => <div>login</div>} />
+                    <Redirect exact from="/" to='/login' />
+                    {/* <Route path='/' exact render={() => <div>home</div>} /> */}
 
-                    {user && user.role && user.role === 'ADMIN' && (
-                        <Route path='/admin' render={(props) => (
-                            <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
-                                <Sidebar {...{ ...props, user }} />
-                                <div className="layout__content">
-                                    <TopNav />
-                                    <div className="layout__content-main">
-                                        <Switch>
-                                            <RoutesAdmin />
-                                        </Switch>
+                    <Route path='/login' exact component={Login} />
 
+                    {/* {user && user.role && user.role === 'ADMIN' && ( */}
+                    <Route path='/admin' render={(props) => (
+                        <>
+                            {user ? (
+                                <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
+                                    {/* <Sidebar {...{ ...props, user }} /> */}
+                                    <Sidebar {...{ ...props, user }} />
+                                    <div className="layout__content">
+                                        <TopNav userData={user} />
+                                        {/* <TopNav /> */}
+                                        <div className="layout__content-main">
+                                            <Switch>
+                                                <RoutesAdmin />
+                                            </Switch>
+
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )} />
-                    )}
+                            ) : (
+                                <Redirect to="/login" />
+                            )}
+                        </>
+                    )} />
+                    {/* )} */}
 
 
                     {/* <Route path='/test-router' render={() => <div style={{marginBottom: '10px'}}>Test</div>}/> */}
@@ -67,11 +105,10 @@ const Layout = () => {
                             <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
                                 <Sidebar {...{ ...props, user }} />
                                 <div className="layout__content">
-                                    <TopNav />
+                                    <TopNav userData={user} />
                                     <div className="layout__content-main">
                                         <Switch>
-                                            <Route path='/he-thong' exact render={() => <div>bac si hoac manage clinic</div>} />
-                                            <Route path='*' render={() => <div>404</div>} />
+                                            <RoutesDoctor />
                                         </Switch>
                                     </div>
                                 </div>

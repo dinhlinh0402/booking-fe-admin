@@ -17,7 +17,7 @@ function RequireAuth({ children }) {
   // console.log('useLocation: ', location);
   if (!auth) {
     // return <Navigate to="/" state={{ from: location }} replace />;
-    return <Redirect to='/' />;
+    return <Redirect to='/login' />;
   }
 
   return children;

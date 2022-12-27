@@ -96,7 +96,7 @@ const Doctor = () => {
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listDoctor = data.map(item => {
-          const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
+          const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`.trim();
           return {
             id: item.id,
             status: item.status,

@@ -55,3 +55,11 @@
 .ml_8 {
   margin-left: 8px;
 }
+
+.name_specialty {
+  cursor: pointer;
+  
+  &:hover {
+    color: #1890ff;
+  }
+}

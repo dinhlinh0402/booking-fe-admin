@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, useHistory } from 'react-router-dom'
 
 import Dashboard from '../pages/Dashboard'
 import CustomersTest from '../pages/Customers-2';
@@ -16,17 +16,43 @@ import Schedules from '../pages/Schedules';
 import DetailCustomer from '../pages/Customers/components/Detail';
 import DetailDoctor from '../pages/Doctor/components/DetailDoctor';
 import DetailClinic from '../pages/Clinic/components/DetailClinic';
+import AuthApis from '../apis/Auth';
+import { toast } from 'react-toastify';
 
 const RoutesAdmin = () => {
+    let history = useHistory();
+
+    useEffect(() => {
+        checkToken();
+    }, []);
+
+    const checkToken = async () => {
+        try {
+            const dataCheckToken = await AuthApis.authMe();
+        } catch (error) {
+            console.log('error: ', error);
+            toast.error('Hết phiên đăng nhập!');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('user');
+            history.push('/login');
+        }
+    }
+
     return (
+
         <Switch>
-            <Route path='/admin' exact component={Dashboard} />
+            {/* <Route path='/admin' exact component={Dashboard} /> */}
             {/* <Route path='/admin/quan-ly-khach-hang' component={Customers} /> */}
             {/* <Route path='/admin/quan-ly-khach-hang'>
                 <RequireAuth>
                     <Customers />
                 </RequireAuth>
             </Route> */}
+            <Route path='/admin' exact>
+                <RequireAuth>
+                    <Dashboard />
+                </RequireAuth>
+            </Route>
             <Route path='/admin/quan-ly-khach-hang'>
                 <Switch>
                     <Route exact path='/admin/quan-ly-khach-hang'>
@@ -95,6 +121,7 @@ const RoutesAdmin = () => {
 
             <Route path='/admin/test' component={TestRouter} />
             <Route path='*' render={() => <div>404</div>} />
+
         </Switch>
     )
 }

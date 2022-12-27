@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import './topnav.css'
 
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 
-import Dropdown from '../dropdown/Dropdown'
+// import Dropdown from '../dropdown/Dropdown'
 
 import ThemeMenu from '../thememenu/ThemeMenu'
 
@@ -13,7 +13,10 @@ import notifications from '../../assets/JsonData/notification.json'
 import user_image from '../../assets/images/tuat.png'
 
 import user_menu from '../../assets/JsonData/user_menus.json'
-import { Table } from 'antd'
+import { Avatar, Dropdown, Space, Table } from 'antd'
+import { useState } from 'react'
+import baseURL from '../../utils/url'
+import { LogoutOutlined } from '@ant-design/icons'
 
 const curr_user = {
     display_name: 'Tuat Tran',
@@ -30,7 +33,19 @@ const renderNotificationItem = (item, index) => (
 const renderUserToggle = (user) => (
     <div className="topnav__right-user">
         <div className="topnav__right-user__image">
-            <img src={user.image} alt="" />
+            {user.image ? (
+                <img src={user.image} alt="" />
+            ) : (
+                <Avatar style={{
+                    color: '#f56a00',
+                    backgroundColor: '#fde3cf'
+                }}>
+                    {user.display_name[0]}
+                    {/* {`abc`.toLocaleUpperCase()} */}
+                </Avatar>
+            )}
+
+
         </div>
         <div className="topnav__right-user__name">
             {user.display_name}
@@ -38,7 +53,7 @@ const renderUserToggle = (user) => (
     </div>
 )
 
-const renderUserMenu =(item, index) => (
+const renderUserMenu = (item, index) => (
     <Link to='/' key={index}>
         <div className="notification-item">
             <i className={item.icon}></i>
@@ -47,7 +62,37 @@ const renderUserMenu =(item, index) => (
     </Link>
 )
 
-const Topnav = () => {
+const Topnav = ({ userData }) => {
+    let history = useHistory();
+    // const userDa = JSON.parse(localStorage.getItem('user'));
+
+    const [name, setName] = useState('');
+    useEffect(() => {
+        if (Object.keys(userData).length) {
+            const nameUser = `${userData.firstName ? userData.firstName : ''} ${userData.middleName ? userData.middleName : ''} ${userData.lastName ? userData.lastName : ''}`.trim();
+            setName(nameUser)
+        }
+    }, userData)
+
+    const handleLogOut = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        history.push('/login');
+    }
+
+    const items = [
+        {
+            key: 'log_out',
+            label: (
+                <div
+                    onClick={handleLogOut}
+                >
+                    Đăng xuất</div>
+            ),
+            icon: <LogoutOutlined style={{ fontSize: '17px', margin: '0 20px 0 10px' }} />,
+        },
+    ];
+
     return (
         <div className='topnav'>
             <div className="topnav__search">
@@ -57,24 +102,43 @@ const Topnav = () => {
             <div className="topnav__right">
                 <div className="topnav__right-item">
                     {/* dropdown here */}
-                    <Dropdown
-                        customToggle={() => renderUserToggle(curr_user)}
+                    {/* <Dropdown
+                        customToggle={() => renderUserToggle({
+                            display_name: name,
+                            image: userData.avatar ? `${baseURL}${userData.avatar}` : null,
+                        })}
                         contentData={user_menu}
                         renderItems={(item, index) => renderUserMenu(item, index)}
-                    />
+                    /> */}
+                    <Dropdown menu={{ items }}>
+                        <Space style={{ cursor: 'pointer' }}>
+                            {userData.image ? (
+                                <Avatar src={userData.image} />
+                            ) : (
+                                <Avatar style={{
+                                    color: '#f56a00',
+                                    backgroundColor: '#fde3cf'
+                                }}>
+                                    {name[0]}
+                                    {/* {`abc`.toLocaleUpperCase()} */}
+                                </Avatar>
+                            )}
+                            <span>{name}</span>
+                        </Space>
+                    </Dropdown>
                 </div>
                 <div className="topnav__right-item">
-                    <Dropdown
+                    {/* <Dropdown
                         icon='bx bx-bell'
                         badge='12'
                         contentData={notifications}
                         renderItems={(item, index) => renderNotificationItem(item, index)}
                         renderFooter={() => <Link to='/'>View All</Link>}
-                    />
+                    /> */}
                     {/* dropdown here */}
                 </div>
                 <div className="topnav__right-item">
-                    <ThemeMenu/>
+                    <ThemeMenu />
                 </div>
             </div>
         </div>
