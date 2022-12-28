@@ -29,16 +29,27 @@ const SidebarItem = props => {
 
 const Sidebar = props => {
     const [sidebarItems, setSidebarItems] = useState([]);
+    const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
-        console.log('role: ', props?.user?.role);
-        if (props?.user?.role === 'ADMIN')
-            setSidebarItems(sidebar_items_admin);
-        else if (props && props.user && props.user.role === 'DOCTOR') {
-            setSidebarItems(sidebar_items_doctor);
-        } else if (props && props.user && props.user.role === 'MANAGER_CLINIC')
-            setSidebarItems(sidebar_items_manage_clinic);
-    }, [])
+        if (user) {
+            if (user?.role === 'ADMIN')
+                setSidebarItems(sidebar_items_admin);
+            else if (user.role === 'DOCTOR') {
+                setSidebarItems(sidebar_items_doctor);
+            } else if (user.role === 'MANAGER_CLINIC')
+                setSidebarItems(sidebar_items_manage_clinic);
+        } else {
+            setSidebarItems([]);
+        }
+        // console.log('role: ', props?.user?.role);
+        // if (props?.user?.role === 'ADMIN')
+        //     setSidebarItems(sidebar_items_admin);
+        // else if (props && props.user && props.user.role === 'DOCTOR') {
+        //     setSidebarItems(sidebar_items_doctor);
+        // } else if (props && props.user && props.user.role === 'MANAGER_CLINIC')
+        //     setSidebarItems(sidebar_items_manage_clinic);
+    }, [user])
 
     // const activeItem = sidebarItems?.findIndex(item => item.route === props.location.pathname)
     // console.log('props: ', props);

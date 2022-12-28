@@ -6,7 +6,7 @@ import Sidebar from '../sidebar/Sidebar'
 import TopNav from '../topnav/TopNav'
 // import Routes from '../Routes'
 
-import { BrowserRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { BrowserRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom'
 
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -15,9 +15,10 @@ import TestRouter from '../../pages/TestRouter';
 import RoutesAdmin from '../Routes';
 import Login from '../../pages/Auth/Login';
 import RoutesDoctor from '../RoutesDoctor';
-import { useState } from 'react';
 import AuthApis from '../../apis/Auth';
 import { toast } from 'react-toastify';
+import ForgotPassword from '../../pages/Auth/ForgotPassword';
+import NotFoundPage from '../../pages/NotFound';
 
 const Layout = () => {
     // const [user, setUser] = useState({})
@@ -55,9 +56,9 @@ const Layout = () => {
         }
     }
 
-    const user = JSON.parse(localStorage.getItem('user'));
-    const accessToken = localStorage.getItem('accessToken');
-    console.log('use: ', user);
+    // const user = JSON.parse(localStorage.getItem('user'));
+    // const accessToken = localStorage.getItem('accessToken');
+    // console.log('use: ', user);
 
     return (
         <>
@@ -69,38 +70,38 @@ const Layout = () => {
 
                 <Switch>
                     <Redirect exact from="/" to='/login' />
+                    <Route path='/quen-mat-khau' exact component={ForgotPassword} />
+
                     {/* <Route path='/' exact render={() => <div>home</div>} /> */}
 
                     <Route path='/login' exact component={Login} />
 
                     {/* {user && user.role && user.role === 'ADMIN' && ( */}
-                    <Route path='/admin' render={(props) => (
-                        <>
-                            {user ? (
-                                <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
-                                    {/* <Sidebar {...{ ...props, user }} /> */}
-                                    <Sidebar {...{ ...props, user }} />
-                                    <div className="layout__content">
-                                        <TopNav userData={user} />
-                                        {/* <TopNav /> */}
-                                        <div className="layout__content-main">
-                                            <Switch>
-                                                <RoutesAdmin />
-                                            </Switch>
+                    {/* <Route path='/admin' render={(props) => (
+                        <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
+                            <Sidebar {...{ ...props, user }} />
+                            <div className="layout__content">
+                                <TopNav userData={user} />
+                                <div className="layout__content-main">
+                                    <Switch>
+                                        <RoutesAdmin />
+                                    </Switch>
 
-                                        </div>
-                                    </div>
                                 </div>
-                            ) : (
-                                <Redirect to="/login" />
-                            )}
-                        </>
+                            </div>
+                        </div>
+                    )} /> */}
+
+                    <Route path='/admin' render={(props) => (
+                        <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
+                            <Sidebar {...{ ...props }} />
+                            <RoutesAdmin />
+                        </div>
                     )} />
-                    {/* )} */}
 
 
                     {/* <Route path='/test-router' render={() => <div style={{marginBottom: '10px'}}>Test</div>}/> */}
-                    {user && user.role && (user.role === 'DOCTOR' || user.role === 'MANAGER_CLINIC') && (
+                    {/* {user && user.role && (user.role === 'DOCTOR' || user.role === 'MANAGER_CLINIC') && (
                         <Route path='/he-thong' render={(props) => (
                             <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
                                 <Sidebar {...{ ...props, user }} />
@@ -114,9 +115,16 @@ const Layout = () => {
                                 </div>
                             </div>
                         )} />
-                    )}
+                    )} */}
 
-                    <Route path='*' render={() => <div>404</div>} />
+                    <Route path='/he-thong' render={(props) => (
+                        <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
+                            <Sidebar {...{ ...props }} />
+                            <RoutesDoctor />
+                        </div>
+                    )} />
+
+                    <Route path='*' component={NotFoundPage} />
                 </Switch>
             </BrowserRouter>
 

@@ -16,7 +16,7 @@ import user_menu from '../../assets/JsonData/user_menus.json'
 import { Avatar, Dropdown, Space, Table } from 'antd'
 import { useState } from 'react'
 import baseURL from '../../utils/url'
-import { LogoutOutlined } from '@ant-design/icons'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 const curr_user = {
     display_name: 'Tuat Tran',
@@ -65,14 +65,14 @@ const renderUserMenu = (item, index) => (
 const Topnav = ({ userData }) => {
     let history = useHistory();
     // const userDa = JSON.parse(localStorage.getItem('user'));
-
     const [name, setName] = useState('');
+
     useEffect(() => {
-        if (Object.keys(userData).length) {
+        if (userData && Object.keys(userData).length) {
             const nameUser = `${userData.firstName ? userData.firstName : ''} ${userData.middleName ? userData.middleName : ''} ${userData.lastName ? userData.lastName : ''}`.trim();
             setName(nameUser)
         }
-    }, userData)
+    }, [userData])
 
     const handleLogOut = () => {
         localStorage.removeItem('accessToken');
@@ -81,6 +81,16 @@ const Topnav = ({ userData }) => {
     }
 
     const items = [
+        {
+            key: 'personal_information',
+            label: (
+                <div
+                    onClick={() => history.push('admin/thong-tin-ca-nhan')}
+                >
+                    Thông tin cá nhân</div>
+            ),
+            icon: <UserOutlined style={{ fontSize: '17px', margin: '0 20px 0 10px' }} />,
+        },
         {
             key: 'log_out',
             label: (
@@ -112,8 +122,8 @@ const Topnav = ({ userData }) => {
                     /> */}
                     <Dropdown menu={{ items }}>
                         <Space style={{ cursor: 'pointer' }}>
-                            {userData.image ? (
-                                <Avatar src={userData.image} />
+                            {userData?.image ? (
+                                <Avatar src={userData?.image} />
                             ) : (
                                 <Avatar style={{
                                     color: '#f56a00',

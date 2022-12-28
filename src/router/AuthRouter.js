@@ -13,9 +13,11 @@ function useAuth() {
 function RequireAuth({ children }) {
   let auth = useAuth();
   let location = useLocation();
+  const accessToken = localStorage.getItem("accessToken");
   // console.log('auth: ', auth);
   // console.log('useLocation: ', location);
-  if (!auth) {
+  // if (!auth) {
+  if (!accessToken) {
     // return <Navigate to="/" state={{ from: location }} replace />;
     return <Redirect to='/login' />;
   }
