@@ -22,6 +22,7 @@ import Topnav from './topnav/TopNav';
 import './layout/layout.scss';
 import PersonalInformation from '../pages/PersonalInformation';
 import NotFoundPage from '../pages/NotFound';
+import ChangePassword from '../pages/Auth/ChangePassword';
 
 const RoutesAdmin = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -136,6 +137,12 @@ const RoutesAdmin = () => {
                     <Route path='/admin/thong-tin-ca-nhan'>
                         <RequireAuth>
                             <PersonalInformation />
+                        </RequireAuth>
+                    </Route>
+
+                    <Route path='/admin/doi-mat-khau'>
+                        <RequireAuth>
+                            <ChangePassword />
                         </RequireAuth>
                     </Route>
 

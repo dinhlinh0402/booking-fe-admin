@@ -70,7 +70,7 @@ const Layout = () => {
 
                 <Switch>
                     <Redirect exact from="/" to='/login' />
-                    <Route path='/quen-mat-khau' exact component={ForgotPassword} />
+                    <Route path='/quen-mat-khau' component={ForgotPassword} />
 
                     {/* <Route path='/' exact render={() => <div>home</div>} /> */}
 

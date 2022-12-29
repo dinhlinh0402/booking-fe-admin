@@ -694,7 +694,7 @@ const DetailDoctor = () => {
               </div>
 
             </Tabs.TabPane>
-            <Tabs.TabPane tab="Giới thiệu về bác sĩ" key="doctor_introduce">
+            <Tabs.TabPane tab="Giới thiệu về bác sĩ" key="doctor_introduce" disabled={dataDoctor && dataDoctor.role === 'MANAGER_CLINIC'}>
               <div className="doctor_introduce">
                 <div className="header_doctor_introduce">
                   <div style={{ fontSize: '17px' }}>Giới thiệu chi tiết bác sĩ</div>

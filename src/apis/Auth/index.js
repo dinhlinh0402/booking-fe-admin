@@ -24,6 +24,11 @@ const AuthApis = {
   resetPassViaEmail(data) {
     const urlParam = 'auth/reset-password-via-mail';
     return requestClient.post(urlParam, data);
+  },
+
+  changePassword(data) {
+    const urlParam = 'auth/change-password';
+    return requestClient.post(urlParam, data);
   }
 };
 

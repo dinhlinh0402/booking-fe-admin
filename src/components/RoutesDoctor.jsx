@@ -19,6 +19,7 @@ import DetailClinic from '../pages/Clinic/components/DetailClinic';
 import AuthApis from '../apis/Auth';
 import { toast } from 'react-toastify';
 import Topnav from './topnav/TopNav';
+import PersonalInformation from '../pages/PersonalInformation';
 
 const RoutesDoctor = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -53,10 +54,20 @@ const RoutesDoctor = () => {
             <Topnav userData={user} />
             <div className="layout__content-main">
                 <Switch>
-                    <RequireAuth>
+                    {/* <RequireAuth>
                         <Route path='/he-thong' exact render={() => <div>bac si hoac manage clinic</div>} />
-                    </RequireAuth>
+                    </RequireAuth> */}
 
+                    <Route path='/he-thong' exact>
+                        <RequireAuth>
+                            <Dashboard />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='/he-thong/thong-tin-ca-nhan'>
+                        <RequireAuth>
+                            <PersonalInformation />
+                        </RequireAuth>
+                    </Route>
 
                     <Route path='*' render={() => <div>404</div>} />
                 </Switch>

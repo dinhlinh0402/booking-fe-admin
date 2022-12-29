@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 
 import './topnav.css'
 
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useLocation } from 'react-router-dom'
 
 // import Dropdown from '../dropdown/Dropdown'
 
@@ -16,7 +16,7 @@ import user_menu from '../../assets/JsonData/user_menus.json'
 import { Avatar, Dropdown, Space, Table } from 'antd'
 import { useState } from 'react'
 import baseURL from '../../utils/url'
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { KeyOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 const curr_user = {
     display_name: 'Tuat Tran',
@@ -63,6 +63,7 @@ const renderUserMenu = (item, index) => (
 )
 
 const Topnav = ({ userData }) => {
+    let location = useLocation();
     let history = useHistory();
     // const userDa = JSON.parse(localStorage.getItem('user'));
     const [name, setName] = useState('');
@@ -73,6 +74,16 @@ const Topnav = ({ userData }) => {
             setName(nameUser)
         }
     }, [userData])
+
+    const PersonalInformation = () => {
+        const pathName = location.pathname.split('/').slice(0, 2).join('/');
+        history.push(`${pathName}/thong-tin-ca-nhan`);
+    }
+
+    const ChangePassword = () => {
+        const pathName = location.pathname.split('/').slice(0, 2).join('/');
+        history.push(`${pathName}/doi-mat-khau`);
+    }
 
     const handleLogOut = () => {
         localStorage.removeItem('accessToken');
@@ -85,11 +96,23 @@ const Topnav = ({ userData }) => {
             key: 'personal_information',
             label: (
                 <div
-                    onClick={() => history.push('admin/thong-tin-ca-nhan')}
+                    // onClick={() => history.push('admin/thong-tin-ca-nhan')}
+                    onClick={PersonalInformation}
                 >
                     Thông tin cá nhân</div>
             ),
             icon: <UserOutlined style={{ fontSize: '17px', margin: '0 20px 0 10px' }} />,
+        },
+        {
+            key: 'change_password',
+            label: (
+                <div
+                    // onClick={() => history.push('admin/thong-tin-ca-nhan')}
+                    onClick={ChangePassword}
+                >
+                    Đổi mật khẩu</div>
+            ),
+            icon: <KeyOutlined style={{ fontSize: '17px', margin: '0 20px 0 10px' }} />,
         },
         {
             key: 'log_out',
@@ -122,8 +145,8 @@ const Topnav = ({ userData }) => {
                     /> */}
                     <Dropdown menu={{ items }}>
                         <Space style={{ cursor: 'pointer' }}>
-                            {userData?.image ? (
-                                <Avatar src={userData?.image} />
+                            {userData?.avatar ? (
+                                <Avatar src={`${baseURL}${userData?.avatar}`} />
                             ) : (
                                 <Avatar style={{
                                     color: '#f56a00',

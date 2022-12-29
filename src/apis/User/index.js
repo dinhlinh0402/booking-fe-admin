@@ -21,8 +21,17 @@ const UserApis = {
   getUserById(params) {
     const urlParam = `user/${params}`;
     return requestClient.get(urlParam);
-  }
-};
+  },
 
+  changeAvatar(data) {
+    const urlParam = `user/change-avatar`;
+    return requestClient.post(urlParam, data);
+  },
+
+  updateUser(data, userId) {
+    const urlParam = `user/${userId}`;
+    return requestClient.put(urlParam, data);
+  },
+};
 
 export default UserApis;
