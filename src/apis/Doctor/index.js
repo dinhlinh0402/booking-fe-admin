@@ -29,10 +29,14 @@ const DoctorApis = {
   },
 
   updateDoctorInfoExtra(data, doctorInforId) {
-    const ulrParam = `doctor-infor/${doctorInforId}`;
-    return requestClient.put(ulrParam, data);
+    const urlParam = `doctor-infor/${doctorInforId}`;
+    return requestClient.put(urlParam, data);
+  },
+
+  getDoctorById(doctorId) {
+    const urlParam = `doctor/${doctorId}`;
+    return requestClient.get(urlParam);
   }
 }
-
 
 export default DoctorApis;

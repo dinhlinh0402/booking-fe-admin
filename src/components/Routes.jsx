@@ -23,6 +23,7 @@ import './layout/layout.scss';
 import PersonalInformation from '../pages/PersonalInformation';
 import NotFoundPage from '../pages/NotFound';
 import ChangePassword from '../pages/Auth/ChangePassword';
+import WatchScheduleForAdmin from '../pages/WatchSchdule/Admin';
 
 const RoutesAdmin = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -130,7 +131,7 @@ const RoutesAdmin = () => {
 
                     <Route path='/admin/quan-ly-lich-kham'>
                         <RequireAuth>
-                            <Schedules />
+                            <WatchScheduleForAdmin />
                         </RequireAuth>
                     </Route>
 

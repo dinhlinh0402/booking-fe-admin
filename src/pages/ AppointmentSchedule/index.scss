@@ -1,0 +1,15 @@
+.header_appointment {
+  // display: flex;
+  // justify-content: space-between;
+  margin-bottom: 30px;
+
+  .date_picker {
+    width: 300px;
+
+    .ant-picker-input {
+      input:focus {
+        border: none;
+      }
+    }
+  }
+}

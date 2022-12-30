@@ -35,10 +35,17 @@ const Sidebar = props => {
         if (user) {
             if (user?.role === 'ADMIN')
                 setSidebarItems(sidebar_items_admin);
-            else if (user.role === 'DOCTOR') {
+            else if (user.role === 'HEAD_DOCTOR') {
+                // const index = sidebar_items_doctor.findIndex(item => )
                 setSidebarItems(sidebar_items_doctor);
-            } else if (user.role === 'MANAGER_CLINIC')
-                setSidebarItems(sidebar_items_manage_clinic);
+            } else if (user.role === 'DOCTOR') {
+                const index = sidebar_items_doctor.findIndex(item => item.display_name === 'Duyệt lịch khám');
+                if (index > 0) {
+                    sidebar_items_doctor.splice(index, 1)
+                }
+                console.log('index: ', index);
+                setSidebarItems(sidebar_items_doctor);
+            } else if (user.role === 'MANAGER_CLINIC');
         } else {
             setSidebarItems([]);
         }

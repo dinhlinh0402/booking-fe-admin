@@ -78,7 +78,6 @@ const InformationAdmin = ({ dataUser, handleReset }) => {
     try {
       const formData = new FormData();
       formData.append('file', fileList[0]?.originFileObj);
-      handleReset();
 
       const data = await UserApis.changeAvatar(formData);
       if (data?.status === 200 && data?.data) {
@@ -316,7 +315,7 @@ const InformationAdmin = ({ dataUser, handleReset }) => {
                     ]}
                   >
                     <Select
-                      disabled={!editInformation}
+                      disabled={true}
                       style={{ width: '100%' }}
                       size='middle'
                       placeholder={dataUser?.role ? 'Chọn vai trò' : 'Không có thông tin'}

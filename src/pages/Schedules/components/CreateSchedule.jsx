@@ -45,6 +45,7 @@ const listTime = [
 
 const CreateSchedule = ({
   isShowModal,
+  doctor,
   handleCancelModal, // function cancel
 }) => {
   const [selectDate, setSelectDate] = useState(moment(dateNow).add(1, 'day').format('YYYY-MM-DDT08:00:00'));
@@ -79,7 +80,7 @@ const CreateSchedule = ({
       const newData = {
         date: moment(values.date).format('YYYY-MM-DDTHH:mm:ss'),
         maxCount: 2,
-        doctorId: '29290bf5-13c4-4a55-b9a7-cd7377242ca3',
+        doctorId: doctor.id,
         times: times,
       }
 

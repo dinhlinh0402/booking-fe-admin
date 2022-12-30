@@ -1,32 +1,27 @@
 [
-  {
-      "display_name": "Dashboard",
-      "route": "/admin",
-      "icon": "bx bx-category-alt"
-  },
-  {
-      "display_name": "Customers",
-      "route": "/admin/customers",
-      "icon": "bx bx-user-pin"
-  },
-  {
-      "display_name": "Products",
-      "route": "/admin/products",
-      "icon": "bx bx-package"
-  },
-  {
-      "display_name": "Orders",
-      "route": "/orders",
-      "icon": "bx bx-cart"
-  },
-  {
-      "display_name": "Analytics",
-      "route": "/analytics",
-      "icon": "bx bx-bar-chart-alt"
-  },
-  {
-      "display_name": "discount",
-      "route": "/discount",
-      "icon": "bx bx-gift"
-  }
+    {
+        "display_name": "Dashboard",
+        "route": "/he-thong",
+        "icon": "bx bx-category-alt"
+    },
+    {
+        "display_name": "Bệnh nhân mới",
+        "route": "/he-thong/benh-nhan-moi",
+        "icon": "bx bx-user-pin"
+    },
+    {
+        "display_name": "Quản lý bác sĩ",
+        "route": "/he-thong/quan-ly-bac-si",
+        "icon": "bx bx-package"
+    },
+    {
+        "display_name": "Quản lý phòng khám",
+        "route": "/he-thong/quan-ly-phong-kham",
+        "icon": "bx bx-cart"
+    },
+    {
+        "display_name": "Quản lý kế hoạch khám bệnh",
+        "route": "/he-thong/quan-ly-ke-hoach-kham-benh",
+        "icon": "bx bx-bar-chart-alt"
+    }
 ]

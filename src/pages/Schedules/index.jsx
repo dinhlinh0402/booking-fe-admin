@@ -13,24 +13,30 @@ const timeEndDay = '2022-12-14T18:00:00';
 const dateNow = new Date();
 
 const Schedules = () => {
-
   const [selectDate, setSelectDate] = useState(moment(dateNow).add(1, 'day').format('YYYY-MM-DDT08:00:00'));
   const [listSchedule, setListSchedule] = useState([]);
   const [isModalCreate, setModalCreate] = useState(false);
   const [listScheduleDisable, setListScheduleDisable] = useState([]);
   const [isShowChangeSchedule, setShowChangeSchedule] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (!isModalCreate)
+    const userLocal = JSON.parse(localStorage.getItem('user'));
+    if (userLocal)
+      setUser(userLocal)
+  }, [])
+
+  useEffect(() => {
+    if (!isModalCreate && user)
       getSchedules();
-  }, [selectDate, isModalCreate]);
+  }, [selectDate, isModalCreate, user]);
 
   const getSchedules = async () => {
     try {
       const dataRes = await ScheduleApis.getListSchedule({
         page: 1,
         take: 100,
-        doctorId: '29290bf5-13c4-4a55-b9a7-cd7377242ca3',
+        doctorId: user.id,
         date: selectDate,
       })
       console.log('dataRes: ', dataRes);
@@ -168,6 +174,7 @@ const Schedules = () => {
       /> */}
       <CreateSchedule
         isShowModal={isModalCreate}
+        doctor={user}
         handleCancelModal={() => setModalCreate(false)}
       />
 

@@ -20,6 +20,8 @@ import AuthApis from '../apis/Auth';
 import { toast } from 'react-toastify';
 import Topnav from './topnav/TopNav';
 import PersonalInformation from '../pages/PersonalInformation';
+import AppointmentSchedule from '../pages/ AppointmentSchedule';
+import WatchScheduleForManagerClinic from '../pages/WatchSchdule/ManageClinic';
 
 const RoutesDoctor = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -63,6 +65,24 @@ const RoutesDoctor = () => {
                             <Dashboard />
                         </RequireAuth>
                     </Route>
+
+                    <Route path='/he-thong/lich-hen' >
+                        <RequireAuth>
+                            <AppointmentSchedule />
+                        </RequireAuth>
+                    </Route>
+                    <Route path='/he-thong/ke-hoach-kham-benh' >
+                        <RequireAuth>
+                            <Schedules />
+                        </RequireAuth>
+                    </Route>
+
+                    <Route path='/he-thong/quan-ly-ke-hoach-kham-benh'>
+                        <RequireAuth>
+                            <WatchScheduleForManagerClinic />
+                        </RequireAuth>
+                    </Route>
+
                     <Route path='/he-thong/thong-tin-ca-nhan'>
                         <RequireAuth>
                             <PersonalInformation />

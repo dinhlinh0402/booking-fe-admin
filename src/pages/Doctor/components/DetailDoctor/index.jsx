@@ -274,7 +274,7 @@ const DetailDoctor = () => {
       if (dataRes.status === 200) {
         setLoading(false);
         setEditInformation(false);
-        toast.success('Cập nhật thông tin nhân viên thành công');
+        toast.success('Cập nhật thông tin bác sĩ thành công');
         setEditInformation(false);
       }
     } catch (error) {
