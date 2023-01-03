@@ -8,7 +8,7 @@ export const listGender = [
     value: 'Nữ'
   },
   {
-    key: 'ORTHER',
+    key: 'OTHER',
     value: 'Khác'
   }
 ];

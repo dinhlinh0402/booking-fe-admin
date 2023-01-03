@@ -1,0 +1,19 @@
+.input_filter {
+  .date_picker {
+    width: 400px;
+
+    .ant-picker-input {
+      input:focus {
+        border: none;
+      }
+    }
+  }
+
+  .select {
+    width: 400px;
+  }
+}
+
+.table_list_schdule {
+  margin-top: 40px;
+}

@@ -1,9 +1,11 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Select, Space } from "antd";
+import { Button, DatePicker, Select, Space, Table, Tag } from "antd";
 import moment from "moment";
 import React, { useState } from "react";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 import ClinicApis from "../../../apis/Clinic";
+import ScheduleApis from "../../../apis/Schedules";
 import UserApis from "../../../apis/User";
 import './index.scss';
 
@@ -11,12 +13,17 @@ const { Option } = Select;
 
 const WatchScheduleForAdmin = () => {
   const [selectDate, setSelectDate] = useState(moment(new Date()).format('YYYY-MM-DDT08:00:00'));
-  const [isLoading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [optionsClinic, setOptionsClinic] = useState([]);
   const [optionsDoctor, setOptionsDoctor] = useState([]);
   const [selectedClinic, setSelectedClinic] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-
+  const [dataResponse, setDataResponse] = useState({});
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+  });
+  const [listSchedule, setListSchedule] = useState([]);
 
   useEffect(() => {
     getListClinic()
@@ -42,7 +49,6 @@ const WatchScheduleForAdmin = () => {
       }
     } catch (error) {
       console.log('error: ', error);
-
     }
   }
 
@@ -57,7 +63,7 @@ const WatchScheduleForAdmin = () => {
         const listDoctor = data?.map(item => {
           return {
             id: item.id,
-            name: `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`.trim()  ,
+            name: `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`.trim(),
           }
         })
 
@@ -80,6 +86,96 @@ const WatchScheduleForAdmin = () => {
   const onChangeDate = (date, stringDate) => {
     setSelectDate(moment(date).format('YYYY-MM-DDTHH:mm:ss'));
   };
+
+  const columns = [
+    {
+      title: 'Thời gian',
+      dataIndex: 'time',
+      key: 'time',
+      width: 100,
+    },
+    {
+      title: 'Ngày khám',
+      dataIndex: 'date',
+      key: 'date',
+      width: 100,
+    },
+    {
+      title: 'Số lượng bệnh nhân',
+      dataIndex: 'count',
+      key: 'count',
+      width: 50,
+    },
+    // {
+    //   title: 'Đã đặt',
+    //   dataIndex: 'booked',
+    //   key: 'booked',
+    //   width: 50,
+    // },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 50,
+      align: 'center',
+      render: (_, record) => {
+        let color = '';
+        if (record.status === 'ACTIVE') color = 'green';
+        else if (record.status === 'CANCLE') color = 'red';
+        else if (record.status === 'WAITING') color = 'orange';
+        else color = 'red';
+
+        return (
+          <>
+            <Tag color={color} key={record.status}>
+              {record.status}
+            </Tag>
+          </>
+        )
+      }
+    }
+  ]
+
+  const handleGetListSchedule = async () => {
+    if (!selectedDoctor) {
+      toast.warning('Bạn chưa chọn bác sĩ!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const dataSchedule = await ScheduleApis.getListSchedule({
+        page: pagination.page,
+        take: pagination.pageSize,
+        doctorId: selectedDoctor,
+        date: selectDate
+      })
+      // console.log('dataSchedule: ', dataSchedule);
+      if (dataSchedule.data.data) {
+        // setListSchedule(dataSchedule.data.data || []);
+        const { data } = dataSchedule.data;
+        const newData = data.map(item => {
+          return {
+            id: item.id,
+            time: `${moment(item.timeStart).format('HH:mm')} - ${moment(item.timeStart).format('HH:mm')}`,
+            date: moment(new Date(parseInt(item.date))).format('DD/MM/YYYY'),
+            count: 'chua tra ve',
+            status: item.status,
+          }
+        })
+        setListSchedule(newData || []);
+        setDataResponse(dataSchedule.data || null)
+        setLoading(false);
+      } else {
+        setListSchedule([]);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setLoading(false);
+    }
+
+  }
 
   return (
     <div>
@@ -150,8 +246,37 @@ const WatchScheduleForAdmin = () => {
             ))}
           </Select>
 
-          <Button size='large' type='primary' icon={<SearchOutlined />}>Tìm kiếm</Button>
+          <Button
+            size='large'
+            type='primary'
+            icon={<SearchOutlined />}
+            onClick={handleGetListSchedule}
+          >Tìm kiếm</Button>
         </Space>
+      </div>
+
+      <div className="table_list_schdule">
+        <Table
+          loading={loading}
+          rowKey={'id'}
+          dataSource={listSchedule}
+          columns={columns}
+          pagination={{
+            current: dataResponse?.meta?.page || 1, // so trang
+            total: dataResponse?.meta?.itemCount || 10, // tong tat ca 
+            defaultPageSize: dataResponse?.meta?.take || 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            locale: { items_per_page: ' kết quả/trang' },
+            onChange: (page, pageSize) => {
+              setPagination({
+                ...pagination,
+                page,
+                pageSize,
+              });
+            },
+          }}
+        />
       </div>
     </div>
   )

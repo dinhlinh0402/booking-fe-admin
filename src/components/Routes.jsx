@@ -23,7 +23,7 @@ import './layout/layout.scss';
 import PersonalInformation from '../pages/PersonalInformation';
 import NotFoundPage from '../pages/NotFound';
 import ChangePassword from '../pages/Auth/ChangePassword';
-import WatchScheduleForAdmin from '../pages/WatchSchdule/Admin';
+import WatchScheduleForAdmin from '../pages/WatchSchedule/Admin';
 
 const RoutesAdmin = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));

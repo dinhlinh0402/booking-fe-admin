@@ -21,7 +21,10 @@ import { toast } from 'react-toastify';
 import Topnav from './topnav/TopNav';
 import PersonalInformation from '../pages/PersonalInformation';
 import AppointmentSchedule from '../pages/ AppointmentSchedule';
-import WatchScheduleForManagerClinic from '../pages/WatchSchdule/ManageClinic';
+import WatchScheduleForManagerClinic from '../pages/WatchSchedule/ManageClinic';
+import DoctorForManagerClinic from '../pages/ManagerClinic/Doctor';
+import ClinicForManagerClinic from '../pages/ManagerClinic/Clinic';
+import DetailDoctorForManagerClinic from '../pages/ManagerClinic/Doctor/components/DetailDoctor';
 
 const RoutesDoctor = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -63,6 +66,35 @@ const RoutesDoctor = () => {
                     <Route path='/he-thong' exact>
                         <RequireAuth>
                             <Dashboard />
+                        </RequireAuth>
+                    </Route>
+
+                    {/* <Route path='/he-thong/quan-ly-bac-si' >
+                        <RequireAuth>
+                            <DoctorForManagerClinic />
+                        </RequireAuth>
+                    </Route> */}
+
+                    <Route path='/he-thong/quan-ly-bac-si'>
+                        <Switch>
+                            <Route exact path='/he-thong/quan-ly-bac-si'>
+                                <RequireAuth>
+                                    <DoctorForManagerClinic />
+                                </RequireAuth>
+                            </Route>
+                            <Route exact path='/he-thong/quan-ly-bac-si/chi-tiet/:doctorId'>
+                                <RequireAuth>
+                                    <DetailDoctorForManagerClinic />
+                                </RequireAuth>
+                            </Route>
+                            <Route path='*' render={() => <div>404</div>} />
+                        </Switch>
+
+                    </Route>
+
+                    <Route path='/he-thong/quan-ly-phong-kham' >
+                        <RequireAuth>
+                            <ClinicForManagerClinic />
                         </RequireAuth>
                     </Route>
 

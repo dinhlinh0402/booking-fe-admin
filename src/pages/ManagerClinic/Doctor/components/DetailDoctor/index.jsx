@@ -4,16 +4,15 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
-import ClinicApis from '../../../../apis/Clinic';
-import SpecialtyApis from '../../../../apis/Specialty';
-import UserApis from '../../../../apis/User';
-import BackIcon from '../../../../components/Icon/Common/BackIcon';
 import './index.scss';
-import DoctorApis from '../../../../apis/Doctor';
 import { toast } from 'react-toastify';
-import { listGender } from '../../../../common/constants/gender';
-import { listRole, listPositon, listPayment } from '../../../../common/constants/doctor';
-import baseURL from '../../../../utils/url';
+import UserApis from '../../../../../apis/User';
+import baseURL from '../../../../../utils/url';
+import SpecialtyApis from '../../../../../apis/Specialty';
+import DoctorApis from '../../../../../apis/Doctor';
+import BackIcon from '../../../../../components/Icon/Common/BackIcon';
+import { listGender } from '../../../../../common/constants/gender';
+import { listPayment, listPositon, listRole } from '../../../../../common/constants/doctor';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -52,7 +51,7 @@ const formats = [
   'link', 'image', 'video'
 ]
 
-const DetailDoctor = () => {
+const DetailDoctorForManagerClinic = () => {
   const [dataDoctor, setDataDoctor] = useState({});
   const [dataDoctorRes, setDataDoctorRes] = useState({});
   const [form] = Form.useForm();
@@ -70,14 +69,14 @@ const DetailDoctor = () => {
 
   useEffect(() => {
     document.title = 'Thông tin bác sĩ';
+    const userLocalStorage = JSON.parse(localStorage.getItem('user'));
+    if(userLocalStorage) getListSpecialty(userLocalStorage)
   }, [])
 
   useEffect(() => {
     if (doctorId) {
       getInfoDoctor(doctorId);
     }
-    getListClinic();
-    getListSpecialty();
   }, [doctorId]);
 
   const getInfoDoctor = async (doctorId) => {
@@ -156,38 +155,10 @@ const DetailDoctor = () => {
     }
   }
 
-  const getListClinic = async () => {
+  const getListSpecialty = async (dataUser) => {
     setLoading(true);
     try {
-      const dataRes = await ClinicApis.getClinics({
-        pages: 1,
-        take: 100,
-        active: true,
-      })
-      if (dataRes?.data?.data) {
-        const { data } = dataRes?.data;
-        const listOptionsClinic = data.map(item => {
-          return {
-            id: item.id,
-            name: item?.name || '',
-          }
-        })
-        setOptionsClinic(listOptionsClinic || []);
-        setLoading(false);
-      }
-    } catch (error) {
-      console.log('error: ', error);
-      setLoading(false);
-    }
-
-  }
-  const getListSpecialty = async () => {
-    setLoading(true);
-    try {
-      const dataRes = await SpecialtyApis.getListSpecialty({
-        pages: 1,
-        take: 100,
-      })
+      const dataRes = await SpecialtyApis.getSpecialtyByClinic(dataUser.clinic.id);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listSpecialty = data?.map(item => {
@@ -212,34 +183,6 @@ const DetailDoctor = () => {
     window.history.back();
   }
 
-  const handleChangSelectClinic = async (value) => {
-    try {
-      const dataSpecialty = await SpecialtyApis.getSpecialtyByClinic(value);
-      if (dataSpecialty?.data?.data?.length > 0) {
-        const { data } = dataSpecialty?.data;
-        const listSpecialty = data?.map(item => {
-          return {
-            id: item.id,
-            name: item.name,
-          }
-        })
-
-        setOptionsSpecialty(listSpecialty || [])
-      } else if (dataSpecialty?.data?.data?.length === 0) {
-        setOptionsSpecialty([]);
-        form.setFieldsValue({
-          specialtyId: undefined
-        })
-      }
-    } catch (error) {
-      console.log('error: ', error);
-      setOptionsSpecialty([]);
-      form.setFieldsValue({
-        specialtyId: undefined
-      })
-    }
-  }
-
   const onChangeAvatar = ({ fileList: newFileList }) => {
     setFileListAvatar(newFileList);
   };
@@ -262,8 +205,9 @@ const DetailDoctor = () => {
       for (const item in value) {
         if (item === 'avatar') {
           formData.append('file', value[item].fileList[0]?.originFileObj);
-        }
-        if (!value[item]) break;
+        } 
+        if(!value[item]) break;
+
         formData.append(item, value[item]);
       }
       // formData.append('file', avatar?.fileList[0]?.originFileObj);
@@ -585,7 +529,7 @@ const DetailDoctor = () => {
                         </Form.Item>
                       </Col>
 
-                      <Col span={4}>
+                      <Col span={10}>
                         <Form.Item
                           name={'role'}
                           label={<span className='txt_label'>Vai trò</span>}
@@ -611,45 +555,8 @@ const DetailDoctor = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-                      <Col span={10}>
-                        <Form.Item
-                          name={'clinicId'}
-                          label={<span className='txt_label'>Phòng khám</span>}
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Phòng khám không được để trống',
-                            },
-                          ]}
-                        >
-                          <Select
-                            disabled={!editInformation}
-                            showSearch
-                            style={{ width: '100%' }}
-                            size='middle'
-                            placeholder={dataDoctor?.clinicId ? 'Chọn phòng khám' : 'Không có thông tin'}
-                            className='txt_input'
-                            // optionLabelProp='label'
-                            // optionFilterProp={'label'}
-                            filterOption={(input, option) =>
-                              option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
-                            }
-                            onChange={handleChangSelectClinic}
-                          >
-                            {optionsClinic.length && optionsClinic.map((item) => (
-                              <Option
-                                key={item.id}
-                                value={item.id || ''}
-                                label={item.name}
-                              >
-                                {item.name}
-                              </Option>
-
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                      <Col span={10}>
+    
+                      <Col span={14}>
                         <Form.Item
                           name={'specialtyId'}
                           label={<span className='txt_label'>Chuyên khoa</span>}
@@ -836,7 +743,11 @@ const DetailDoctor = () => {
                       {editIntroduce && !doctorInforId && (
                         <div style={{ textAlign: 'center', marginTop: '30px', width: '100%' }}>
                           <Col span={24} >
-                            <Button className='btn_cancel' danger size='middle' onClick={() => setEditIntroduce(false)}>
+                            <Button 
+                              className='btn_cancel' 
+                              danger size='middle' 
+                              onClick={() => setEditIntroduce(false)}
+                            >
                               Hủy
                             </Button>
                             <Button className='btn_add' size='middle' htmlType='submit' type='primary'>
@@ -852,12 +763,10 @@ const DetailDoctor = () => {
               </div>
             </Tabs.TabPane>
           </Tabs>
-
         </>
       )}
-
     </>
   )
 }
 
-export default DetailDoctor;
+export default DetailDoctorForManagerClinic;

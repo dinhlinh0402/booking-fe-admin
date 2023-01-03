@@ -3,9 +3,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import './CreateDoctor.scss';
 import { toast } from 'react-toastify';
-import ClinicApis from '../../../apis/Clinic';
-import SpecialtyApis from '../../../apis/Specialty';
-import DoctorApis from '../../../apis/Doctor';
+import DoctorApis from '../../../../apis/Doctor';
 
 const { Option } = Select;
 const listGender = [
@@ -41,45 +39,19 @@ const listRole = [
 const CreateDoctor = ({
   isShowModal,
   handleCancelModal, // function cancel
+  clinicId,
+  optionsSpecialty
 }) => {
   const [loading, setLoading] = useState(false);
-  const [optionsClinic, setOptionsClinic] = useState([]);
-  const [optionsSpecialty, setOptionsSpecialty] = useState([]);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    !!isShowModal && getListClinic();
-  }, [isShowModal])
-
-  const getListClinic = async () => {
-    try {
-      const dataRes = await ClinicApis.getClinics({
-        pages: 1,
-        take: 100,
-        active: true,
-      })
-      // console.log('dataRes: ', dataRes);
-      if (dataRes?.data?.data) {
-        const { data } = dataRes?.data;
-        const listOptionsClinic = data.map(item => {
-          return {
-            id: item.id,
-            name: item?.name || '',
-          }
-        })
-        setOptionsClinic(listOptionsClinic || []);
-      }
-    } catch (error) {
-      console.log('error: ', error);
-
-    }
-  }
   const handleAddNewDoctor = async (value) => {
     console.log('value: ', value);
     try {
       setLoading(true)
       const dataRes = await DoctorApis.createDoctor({
         ...value,
+        clinicId: clinicId
       })
       // 
       if (dataRes.status === 200) {
@@ -102,36 +74,9 @@ const CreateDoctor = ({
       setLoading(false);
       if (error.response.data.error === 'USER_ALREADY_EXIST' && error.response.data.status === 409) {
         toast.error('Bác sĩ đã tồn tại!');
+        return ;
       }
-      // toast.error('Lỗi');
-    }
-  }
-
-  const handleChangSelectClinic = async (value) => {
-    try {
-      const dataSpecialty = await SpecialtyApis.getSpecialtyByClinic(value);
-      if (dataSpecialty?.data?.data?.length > 0) {
-        const { data } = dataSpecialty?.data;
-        const listSpecialty = data?.map(item => {
-          return {
-            id: item.id,
-            name: item.name,
-          }
-        })
-
-        setOptionsSpecialty(listSpecialty || [])
-      } else if (dataSpecialty?.data?.data?.length === 0) {
-        setOptionsSpecialty([]);
-        form.setFieldsValue({
-          specialtyId: undefined
-        })
-      }
-    } catch (error) {
-      // console.log('error: ', error);
-      setOptionsSpecialty([]);
-      form.setFieldsValue({
-        specialtyId: undefined
-      })
+      toast.error('Thêm bác sĩ không thành công!');
     }
   }
 
@@ -320,44 +265,8 @@ const CreateDoctor = ({
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name={'clinicId'}
-                label={<span className='txt_label'>Phòng khám</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Phòng khám không được để trống',
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  style={{ width: '100%' }}
-                  size='middle'
-                  placeholder={true ? 'Chọn phòng khám' : 'Không có thông tin'}
-                  className='txt_input'
-                  // optionLabelProp='label'
-                  // optionFilterProp={'label'}
-                  filterOption={(input, option) =>
-                    option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
-                  }
-                  onChange={handleChangSelectClinic}
-                >
-                  {optionsClinic.length && optionsClinic.map((item) => (
-                    <Option
-                      key={item.id}
-                      value={item.id || ''}
-                      label={item.name}
-                    >
-                      {item.name}
-                    </Option>
-
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
+      
+            <Col span={24}>
               <Form.Item
                 name={'specialtyId'}
                 label={<span className='txt_label'>Chuyên khoa</span>}

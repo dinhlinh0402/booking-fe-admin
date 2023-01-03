@@ -1,17 +1,17 @@
-import { LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Alert, Button, Input, Modal, Space, Switch, Table } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import { LockOutlined, PlusCircleOutlined, SearchOutlined, UnlockOutlined } from "@ant-design/icons";
+import { Alert, Button, Input, Modal, Space, Switch, Table } from "antd";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import DoctorApis from "../../../apis/Doctor";
+import SpecialtyApis from "../../../apis/Specialty";
+import UserApis from "../../../apis/User";
+import FilterObjDropDown from "../../../components/Filter/FilterObjDropDown";
+import Stroke from "../../../components/Icon/CareStaff/Stoke";
+import FilterIcon from "../../../components/Icon/Doctor/FilterIcon";
+import CreateDoctor from "./components/CreateDoctor";
 import './index.scss';
-import { toast } from 'react-toastify';
-import moment from 'moment';
-import { Link, useHistory, useLocation } from 'react-router-dom';
-import DoctorApis from '../../../../../apis/Doctor';
-import SpecialtyApis from '../../../../../apis/Specialty';
-import UserApis from '../../../../../apis/User';
-import FilterObjDropDown from '../../../../../components/Filter/FilterObjDropDown';
-import Stroke from '../../../../../components/Icon/CareStaff/Stoke';
-import FilterIcon from '../../../../../components/Icon/Doctor/FilterIcon';
-import CreateDoctor from '../../../../Doctor/components/CreateDoctor';
 
 const listRole = [
   {
@@ -45,7 +45,7 @@ const listStatus = [
   },
 ]
 
-const TableDoctor = ({ clinicId }) => {
+const DoctorForManagerClinic = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [search, setSearch] = useState('');
   const typingSearch = useRef(null);
@@ -66,80 +66,23 @@ const TableDoctor = ({ clinicId }) => {
   const [dataResponse, setDataResponse] = useState({});
   const [showBtn, setShowBtn] = useState([]);
   const [isShowModalDelete, setShowModalDelete] = useState(false);
-  let location = useLocation();
-  let history = useHistory();
+  const [userLocal, setUserLocal] = useState(null);
+
 
   useEffect(() => {
-    if (!isModalCreate && !isShowModalDelete && clinicId)
-      getListDoctor();
-  }, [checkedList, pagination, isModalCreate, isShowModalDelete, search])
-
-
-  const getListDoctor = async () => {
-    try {
-      setLoading(true);
-      const dataRes = await DoctorApis.getListDoctor({
-        page: pagination.page,
-        take: pagination.pageSize,
-        status: checkedList.status || undefined,
-        role: checkedList.role.length ? checkedList.role : ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'],
-        clinicId: clinicId,
-        specialtyIds: checkedList.specialty || undefined,
-        q: search || undefined,
-      })
-      if (dataRes?.data?.data) {
-        const { data } = dataRes?.data;
-        const listDoctor = data.map(item => {
-          const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`;
-          return {
-            id: item.id,
-            status: item.status,
-            name: name,
-            email: item.email || '',
-            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
-            birthday: item.birthday ? moment(item.birthday).format('DD/MM/YYYY') : '',
-            phoneNumber: item.phoneNumber || '',
-            role: item.role ? role[item.role] : '',
-            clinic: item.clinic ? item.clinic.name : '',
-            specialty: item.specialty ? item.specialty.name : '',
-          }
-        })
-        setListDoctor(listDoctor || []);
-        setDataResponse(dataRes?.data ? dataRes?.data : {});
-        setLoading(false);
-      }
-    } catch (error) {
-      console.log('erroe: ', error);
-      setLoading(false);
+    document.title = 'Quản lý bác sĩ';
+    const userLocalStorage = JSON.parse(localStorage.getItem('user'));
+    if(userLocalStorage) {
+      setUserLocal(userLocalStorage);
+      getListSpecialty(userLocalStorage);
     }
-  }
-
-  useEffect(() => {
-    getListSpecialty();
   }, [])
 
-  const getListSpecialty = async () => {
-    try {
-      const dataSpecialty = await SpecialtyApis.getListSpecialty({
-        pages: 1,
-        take: 100,
-      });
-      if (dataSpecialty?.data?.data) {
-        const { data } = dataSpecialty?.data;
-        const listSpecialty = data?.map(item => {
-          return {
-            id: item.id,
-            name: item?.name,
-          }
-        })
+  useEffect(() => {
+    if (!isModalCreate && !isShowModalDelete && userLocal)
+      getListDoctor();
+  }, [checkedList, pagination, isModalCreate, isShowModalDelete, search, userLocal])
 
-        setListSpecialty(listSpecialty || []);
-      }
-    } catch (error) {
-      console.log('error: ', error);
-      setListSpecialty([]);
-    }
-  }
 
   useEffect(() => {
     const checkShow = [];
@@ -183,6 +126,105 @@ const TableDoctor = ({ clinicId }) => {
 
     setShowBtn([...btnArray]);
   }, [selectedRowKeys]);
+  const getListDoctor = async () => {
+    try {
+      setLoading(true);
+      const dataRes = await DoctorApis.getListDoctor({
+        page: pagination.page,
+        take: pagination.pageSize,
+        status: checkedList.status || undefined,
+        role: checkedList.role.length ? checkedList.role : ['DOCTOR', 'MANAGER_CLINIC', 'HEAD_OF_DOCTOR'],
+        clinicId: userLocal.clinic.id,
+        specialtyIds: checkedList.specialty || undefined,
+        q: search || undefined,
+      })
+      if (dataRes?.data?.data) {
+        const { data } = dataRes?.data;
+        const listDoctor = data.map(item => {
+          const name = `${item.firstName ? item.firstName : ''} ${item.middleName ? item.middleName : ''} ${item.lastName ? item.lastName : ''}`.trim();
+          return {
+            id: item.id,
+            status: item.status,
+            name: name,
+            email: item.email || '',
+            gender: item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'MALE' ? 'Nam' : 'Khác' || '',
+            birthday: item.birthday ? moment(item.birthday).format('DD/MM/YYYY') : '',
+            phoneNumber: item.phoneNumber || '',
+            role: item.role ? role[item.role] : '',
+            clinic: item.clinic ? item.clinic.name : '',
+            specialty: item.specialty ? item.specialty.name : '',
+          }
+        })
+        setListDoctor(listDoctor || []);
+        setDataResponse(dataRes?.data ? dataRes?.data : {});
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log('erroe: ', error);
+      setLoading(false);
+    }
+  }
+
+  const getListSpecialty = async (dataUser) => {
+    try {
+      const dataSpecialty = await SpecialtyApis.getSpecialtyByClinic(dataUser.clinic.id);
+      if (dataSpecialty?.data?.data) {
+        const { data } = dataSpecialty?.data;
+        const listSpecialty = data?.map(item => {
+          return {
+            id: item.id,
+            name: item?.name,
+          }
+        })
+
+        setListSpecialty(listSpecialty || []);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      setListSpecialty([]);
+    }
+  }
+
+  const handleSearch = (e) => {
+    if (typingSearch.current) {
+      clearTimeout(typingSearch.current);
+    }
+    typingSearch.current = setTimeout(() => {
+      setSearch(e.target.value);
+    }, 500)
+  }
+
+  const handleCheck = (key, value) => {
+    setCheckedList({
+      ...checkedList,
+      [key]: value,
+    });
+  };
+
+  const handleCheckAll = (key, value) => {
+    setCheckedList({
+      ...checkedList,
+      [key]: value,
+    });
+  };
+
+  const handleDeleteDoctor = async () => {
+    try {
+      if (selectedRowKeys.length > 0) {
+        const dataRes = await UserApis.deleteUser({
+          userIds: selectedRowKeys,
+        })
+        if (dataRes?.data === true && dataRes?.status === 200) {
+          toast.success('Xoá bác sĩ thành công');
+        }
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Xoá bác sĩ không thành công!');
+    }
+    setShowModalDelete(false);
+    setSelectedRowKeys([]);
+  };
 
   const handleChangeStatus = async ({ userIds, status }) => {
     try {
@@ -197,6 +239,10 @@ const TableDoctor = ({ clinicId }) => {
       toast.error('Thay đổi trạng thái không thành công!');
     }
   }
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
 
   const columns = [
     {
@@ -229,14 +275,8 @@ const TableDoctor = ({ clinicId }) => {
           style={{
             cursor: 'pointer',
           }}
-          onClick={() => {
-            console.log('location', location);
-            const pathName = location.pathname.split('/').slice(0, 2).join('/');
-            console.log('pathName', pathName);
-            history.push(`${pathName}/quan-ly-bac-si/chi-tiet/${record.id}`)
-          }}
         >
-          {record.name}
+          <Link to={location => `${location.pathname}/chi-tiet/${record.id}`}>{record.name}</Link>
         </div>
       )
     },
@@ -276,6 +316,13 @@ const TableDoctor = ({ clinicId }) => {
       width: 100,
     },
     {
+      title: 'Tên phòng khám',
+      dataIndex: 'clinic',
+      key: 'clinic',
+      ellipsis: true,
+      width: 100,
+    },
+    {
       title: 'Chuyên khoa',
       dataIndex: 'specialty',
       key: 'specialty',
@@ -284,53 +331,10 @@ const TableDoctor = ({ clinicId }) => {
     }
   ]
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const handleCheck = (key, value) => {
-    setCheckedList({
-      ...checkedList,
-      [key]: value,
-    });
-  };
-
-  const handleCheckAll = (key, value) => {
-    setCheckedList({
-      ...checkedList,
-      [key]: value,
-    });
-  };
-
-  const handleSearch = (e) => {
-    if (typingSearch.current) {
-      clearTimeout(typingSearch.current);
-    }
-    typingSearch.current = setTimeout(() => {
-      setSearch(e.target.value);
-    }, 500)
-  }
-
-  const handleDeleteDoctor = async () => {
-    try {
-      if (selectedRowKeys.length > 0) {
-        const dataRes = await UserApis.deleteUser({
-          userIds: selectedRowKeys,
-        })
-        if (dataRes?.data === true && dataRes?.status === 200) {
-          toast.success('Xoá bác sĩ thành công');
-        }
-      }
-    } catch (error) {
-      console.log('error: ', error);
-      toast.error('Xoá bác sĩ không thành công!');
-    }
-    setShowModalDelete(false);
-    setSelectedRowKeys([]);
-  };
-
   return (
     <div>
+      <h1>Danh sách bác sĩ</h1>
+
       <div className="header_doctor">
         <Space>
           <Button
@@ -457,12 +461,14 @@ const TableDoctor = ({ clinicId }) => {
             });
           },
         }}
-      // scroll={{ x: 'max-content' }}
+        scroll={{ x: 'max-content' }}
       />
 
-      <CreateDoctor
+      <CreateDoctor 
         isShowModal={isModalCreate}
         handleCancelModal={() => setModalCreate(false)}
+        clinicId={userLocal?.clinic?.id}
+        optionsSpecialty={listSpecialty}
       />
 
       <Modal
@@ -477,9 +483,24 @@ const TableDoctor = ({ clinicId }) => {
         <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
           Bạn có muốn xóa bác sĩ?
         </h2>
+        {/* <Space direction='vertical'>
+          <Text>
+            Sau khi xóa nhãn, hệ thống sẽ tự động gỡ nhãn khỏi các lượt tương tác đã được gắn nhãn
+            trước đây.
+            <br /> Vui lòng cân nhắc trước khi xóa.
+          </Text>
+
+          <div style={{ background: '#fdefe4', padding: '10px', borderRadius: '3px' }}>
+            <Text style={{ fontWeight: 600, color: '#e59935' }}>
+              <WarningFilled /> Lưu ý:
+              <br />
+            </Text>
+            <Text>Các nhãn tạo từ Facebook được hệ thống tự động đồng bộ, không thể xóa.</Text>
+          </div>
+        </Space> */}
       </Modal>
     </div>
   )
 }
 
-export default TableDoctor;
+export default DoctorForManagerClinic;

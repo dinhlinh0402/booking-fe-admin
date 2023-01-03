@@ -100,7 +100,8 @@ const TabClinicInformation = ({ dataClinic }) => {
           formData.append('file', values[item].fileList[0]?.originFileObj);
         } else if (item === 'specialties') {
           formData.append(item, JSON.stringify(values[item]));
-        } else {
+        } else if (!values[item]) break;
+        else {
           formData.append(item, values[item]);
         }
       }

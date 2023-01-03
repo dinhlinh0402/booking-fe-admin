@@ -35,7 +35,7 @@ const Sidebar = props => {
         if (user) {
             if (user?.role === 'ADMIN')
                 setSidebarItems(sidebar_items_admin);
-            else if (user.role === 'HEAD_DOCTOR') {
+            else if (user.role === 'HEAD_OF_DOCTOR') {
                 // const index = sidebar_items_doctor.findIndex(item => )
                 setSidebarItems(sidebar_items_doctor);
             } else if (user.role === 'DOCTOR') {
@@ -45,7 +45,7 @@ const Sidebar = props => {
                 }
                 console.log('index: ', index);
                 setSidebarItems(sidebar_items_doctor);
-            } else if (user.role === 'MANAGER_CLINIC');
+            } else if (user.role === 'MANAGER_CLINIC') setSidebarItems(sidebar_items_manage_clinic);
         } else {
             setSidebarItems([]);
         }
