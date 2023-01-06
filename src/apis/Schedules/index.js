@@ -11,6 +11,11 @@ const ScheduleApis = {
     const urlParam = 'schedules';
     return requestClient.post(urlParam, data)
   },
+
+  deleteManySchedule(data) {
+    const urlParam = 'schedules/many-schedule';
+    return requestClient.delete(urlParam, { data: data });
+  },
 };
 
 

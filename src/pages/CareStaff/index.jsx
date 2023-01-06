@@ -10,7 +10,6 @@ import Stroke from '../../components/Icon/CareStaff/Stoke';
 import UserApis from '../../apis/User';
 
 const CareStaff = () => {
-
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [search, setSearch] = useState('');
   const [isModalCreate, setModalCreate] = useState(false);

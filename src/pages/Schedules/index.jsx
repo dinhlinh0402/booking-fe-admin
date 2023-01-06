@@ -1,10 +1,12 @@
-import { Button, DatePicker, Empty, Modal, Space, Typography } from 'antd';
+import { Alert, Button, DatePicker, Empty, Modal, Space, Table, Tag, Typography } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { PlusCircleOutlined, WarningFilled } from '@ant-design/icons';
 import ScheduleApis from '../../apis/Schedules';
 import './index.scss';
 import CreateSchedule from './components/CreateSchedule';
+import { toast } from 'react-toastify';
+import Stroke from '../../components/Icon/CareStaff/Stoke';
 
 const { Text } = Typography;
 
@@ -19,6 +21,9 @@ const Schedules = () => {
   const [listScheduleDisable, setListScheduleDisable] = useState([]);
   const [isShowChangeSchedule, setShowChangeSchedule] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [dataResponse, setDataResponse] = useState({});
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   useEffect(() => {
     const userLocal = JSON.parse(localStorage.getItem('user'));
@@ -32,6 +37,7 @@ const Schedules = () => {
   }, [selectDate, isModalCreate, user]);
 
   const getSchedules = async () => {
+    setLoading(true);
     try {
       const dataRes = await ScheduleApis.getListSchedule({
         page: 1,
@@ -39,7 +45,6 @@ const Schedules = () => {
         doctorId: user.id,
         date: selectDate,
       })
-      console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const listScheduleMap = data.map(item => {
@@ -48,17 +53,24 @@ const Schedules = () => {
             timeStart: item.timeStart ? moment(item?.timeStart).format('YYYY-MM-DDTHH:mm:ss') : '',
             timeEnd: item.timeEnd ? moment(item?.timeEnd).format('YYYY-MM-DDTHH:mm:ss') : '',
             checked: true,
+            status: item.status,
+            date: moment(new Date(parseInt(item.date))).format('DD/MM/YYYY'),
+            maxCount: item?.maxCount || 0,
+            booked: item?.booked || 0,
           }
         })
         setListSchedule(listScheduleMap || []);
+        setDataResponse(dataRes?.data || null);
+        setLoading(false);
       }
     } catch (error) {
+      setLoading(false);
       console.log('error: ', error);
     }
   }
 
   useEffect(() => {
-    console.log(timeStartDay > timeEndDay);
+    // console.log(timeStartDay > timeEndDay);
     const listTime = [];
     let timeStartDayClone = timeStartDay
     while (timeStartDayClone < timeEndDay) {
@@ -100,7 +112,86 @@ const Schedules = () => {
     setListSchedule(listScheduleNew);
     setListScheduleDisable([...listScheduleDisableNew]);
   }
-  console.log('listScheduleDisable: ', listScheduleDisable);
+
+  const handleDeleteDoctor = async () => {
+    if (isShowChangeSchedule && (listScheduleDisable.length || selectedRowKeys.length)) {
+      try {
+        const dataDelete = await ScheduleApis.deleteManySchedule({
+          scheduleIds: listScheduleDisable.length ? listScheduleDisable : selectedRowKeys,
+        });
+        if (dataDelete.status === 200 && dataDelete.data === true) {
+          getSchedules();
+          toast.success('Thay đổi kế hoạch khám thành công');
+          setShowChangeSchedule(false);
+          setSelectedRowKeys([]);
+        }
+      } catch (error) {
+        console.log('error: ', error);
+        if (error?.response?.data?.error === 'APPOINTMENT_HAS_BEEN_BOOKED') {
+          toast.warning('Lịch hẹn đã có người đặt, không thể thay đổi!')
+          return;
+        }
+        toast.error('Thay đổi kế hoạch khám không thành công!')
+      }
+    }
+  }
+
+  const columns = [
+    {
+      title: 'Thời gian',
+      dataIndex: 'time',
+      key: 'time',
+      width: 100,
+      render: (_, record) => (
+        <span>{`${moment(record.timeStart).format('HH:mm')} - ${moment(record.timeEnd).format('HH:mm')}`}</span>
+      )
+    },
+    {
+      title: 'Ngày khám',
+      dataIndex: 'date',
+      key: 'date',
+      width: 100,
+    },
+    {
+      title: 'Số lượng bệnh nhân',
+      dataIndex: 'maxCount',
+      key: 'maxCount',
+      width: 50,
+    },
+    {
+      title: 'Đã đặt',
+      dataIndex: 'booked',
+      key: 'booked',
+      width: 50,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 50,
+      align: 'center',
+      render: (_, record) => {
+        let color = '';
+        if (record.status === 'ACTIVE') color = 'green';
+        else if (record.status === 'CANCLE') color = 'red';
+        else if (record.status === 'WAITING') color = 'orange';
+        else color = 'red';
+
+        return (
+          <>
+            <Tag color={color} key={record.status}>
+              {record.status}
+            </Tag>
+          </>
+        )
+      }
+    }
+  ]
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
   return (
     <div>
       <h1>Quản lý lịch khám</h1>
@@ -140,7 +231,7 @@ const Schedules = () => {
         <div className="title_list_schedule">
           Danh sách giờ khám
         </div>
-        <div className="description_list_schedule">Bấm vào từng khung giờ để có thể cập nhật lại kế hoạch khám.</div>
+        {/* <div className="description_list_schedule">Bấm vào từng khung giờ để có thể cập nhật lại kế hoạch khám.</div>
         {listSchedule && listSchedule.length ? (
           <Space wrap>
             {listSchedule.map((item, idx) => (
@@ -154,7 +245,7 @@ const Schedules = () => {
               </Button>
             ))}
           </Space>
-        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<div>Không có giờ khám</div>} />}
+        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<div>Không có giờ khám</div>} />} */}
       </div>
 
       {listScheduleDisable && listScheduleDisable.length > 0 && (
@@ -172,6 +263,58 @@ const Schedules = () => {
         isShowModal={isModalCreate}
         handleCancelModal={() => setModalCreate(false)}
       /> */}
+
+      <div className="table_list_schdule">
+
+        {selectedRowKeys.length > 0 && (
+          <Alert
+            className='fontSizeAlert'
+            message={
+              <div>
+                <Space>
+                  <span>Đã chọn: {selectedRowKeys.length}</span>
+
+                  <Button
+                    className='btn_active'
+                    icon={<Stroke className='transformY_2' />}
+                    onClick={() => {
+                      setShowChangeSchedule(true);
+                    }}
+                  >
+                    <span className='ml_8'>Xóa</span>
+                  </Button>
+                </Space>
+              </div>
+            }
+          />
+        )}
+        <Table
+          loading={loading}
+          rowKey={'id'}
+          dataSource={listSchedule}
+          columns={columns}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: onSelectChange
+          }}
+          pagination={{
+            current: dataResponse?.meta?.page || 1, // so trang
+            total: dataResponse?.meta?.itemCount || 10, // tong tat ca 
+            defaultPageSize: dataResponse?.meta?.take || 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            locale: { items_per_page: ' kết quả/trang' },
+            // onChange: (page, pageSize) => {
+            //   setPagination({
+            //     ...pagination,
+            //     page,
+            //     pageSize,
+            //   });
+            // },
+          }}
+        />
+      </div>
+
       <CreateSchedule
         isShowModal={isModalCreate}
         doctor={user}
@@ -179,8 +322,8 @@ const Schedules = () => {
       />
 
       <Modal
-        visible={isShowChangeSchedule}
-        // onOk={handleDeleteDoctor}
+        open={isShowChangeSchedule}
+        onOk={handleDeleteDoctor}
         onCancel={() => setShowChangeSchedule(false)}
         cancelText={'Hủy'}
         okText={'Cập nhật'}

@@ -75,16 +75,16 @@ const WatchScheduleForManagerClinic = () => {
     },
     {
       title: 'Số lượng bệnh nhân',
-      dataIndex: 'count',
-      key: 'count',
+      dataIndex: 'maxCount',
+      key: 'maxCount',
       width: 50,
     },
-    // {
-    //   title: 'Đã đặt',
-    //   dataIndex: 'booked',
-    //   key: 'booked',
-    //   width: 50,
-    // },
+    {
+      title: 'Đã đặt',
+      dataIndex: 'booked',
+      key: 'booked',
+      width: 50,
+    },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -130,10 +130,12 @@ const WatchScheduleForManagerClinic = () => {
         const newData = data.map(item => {
           return {
             id: item.id,
-            time: `${moment(item.timeStart).format('HH:mm')} - ${moment(item.timeStart).format('HH:mm')}`,
+            time: `${moment(item.timeStart).format('HH:mm')} - ${moment(item.timeEnd).format('HH:mm')}`,
             date: moment(new Date(parseInt(item.date))).format('DD/MM/YYYY'),
             count: 'chua tra ve',
             status: item.status,
+            maxCount: item?.maxCount || 0,
+            booked: item?.booked || 0,
           }
         })
         setListSchedule(newData || []);
@@ -183,10 +185,11 @@ const WatchScheduleForManagerClinic = () => {
             onChange={handleChangSelectDoctor}
             filterOption={(input, option) =>
               option?.label !== null && option?.label?.toLowerCase().includes(input.trim().toLowerCase())
+              // return option?.children !== null && option?.children?.toLowerCase().includes(input.trim().toLowerCase());
             }
           >
             {optionsDoctor.length && optionsDoctor.map((item) => (
-              <Option key={item.id} value={item.id}>
+              <Option key={item.id} value={item.id} label={item.name}>
                 {item.name}
               </Option>
             ))}

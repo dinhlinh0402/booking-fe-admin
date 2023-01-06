@@ -49,3 +49,28 @@
     border-radius: 5px;
   }
 }
+
+.table_list_schdule {
+  .fontSizeAlert {
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  
+  .btn_active,
+  .btn_active:hover,
+  .btn_active:focus {
+    margin-left: 10px !important;
+    padding: 0 10px;
+    color: black;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    background: #fff !important;
+    border-radius: 3px;
+  }
+  .transformY_2 {
+    transform: translateY(2px);
+  }
+  .ml_8 {
+    margin-left: 8px;
+  }
+}
