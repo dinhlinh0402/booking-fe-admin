@@ -342,7 +342,7 @@ const CareStaff = () => {
       />
 
       <Modal
-        visible={isShowModalDelete}
+        open={isShowModalDelete}
         onOk={handleDeleteCustomer}
         onCancel={() => setShowModalDelete(false)}
         cancelText={'Hủy'}
