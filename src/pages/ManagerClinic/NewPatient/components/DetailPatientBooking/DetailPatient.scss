@@ -1,0 +1,44 @@
+.detail_modal {
+  .ant-modal-header {
+    padding-bottom: 0;
+    border: none;
+
+    .ant-modal-title {
+      font-weight: 600;
+      font-size: 20px;
+      text-align: center;
+    }
+  }
+  .ant-modal-body {
+    // padding-top: 15px;
+  }
+
+  .ant-form-item {
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .txt_label {
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .txt_input {
+    margin-bottom: 10px;
+    font-weight: 400;
+    font-size: 14px !important;
+  }
+
+  .btn_add {
+    background: #0064e6;
+    border-radius: 5px;
+    height: 40px;
+  }
+  
+  .btn_cancel {
+    margin-right: 15px;
+    border-radius: 5px;
+    height: 40px;
+  }
+  
+}

@@ -25,6 +25,7 @@ import WatchScheduleForManagerClinic from '../pages/WatchSchedule/ManageClinic';
 import DoctorForManagerClinic from '../pages/ManagerClinic/Doctor';
 import ClinicForManagerClinic from '../pages/ManagerClinic/Clinic';
 import DetailDoctorForManagerClinic from '../pages/ManagerClinic/Doctor/components/DetailDoctor';
+import NewPatient from '../pages/ManagerClinic/NewPatient/indedx';
 
 const RoutesDoctor = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -103,6 +104,13 @@ const RoutesDoctor = () => {
                             <AppointmentSchedule />
                         </RequireAuth>
                     </Route>
+
+                    <Route path='/he-thong/benh-nhan-moi' >
+                        <RequireAuth>
+                            <NewPatient />
+                        </RequireAuth>
+                    </Route>
+
                     <Route path='/he-thong/ke-hoach-kham-benh' >
                         <RequireAuth>
                             <Schedules />

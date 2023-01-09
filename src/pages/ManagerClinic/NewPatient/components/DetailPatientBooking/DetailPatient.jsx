@@ -3,7 +3,7 @@ import moment from "moment";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import BookingApis from "../../../apis/Bookings";
+import BookingApis from "../../../../../apis/Bookings";
 import './DetailPatient.scss';
 
 const { TextArea } = Input;
@@ -12,27 +12,31 @@ const DetailPatient = ({
   detailPatient,
   showModal,
   handleCancelModal,
-  disabledBtnSave
+  disabledBtnSave,
+  type
 }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
   const [dataHistoryPatient, setDataHistoryPatient] = useState([]);
   const [form] = Form.useForm();
   useEffect(() => {
     if (detailPatient) {
       form.setFieldsValue({
-        name: detailPatient.name,
-        email: detailPatient.email,
-        reason: detailPatient.reason,
-        note: detailPatient.doctorNote,
-      });
+        name: detailPatient?.namePatient || '',
+        email: detailPatient?.email || '',
+        reason: detailPatient?.reason || '',
+        note: detailPatient?.doctorNote || null,
+      })
 
-      getHistoryPatient();
+      if (type === 'new_patient') {
+        getHistoryPatient();
+      }
     }
   }, [detailPatient]);
 
   const getHistoryPatient = async () => {
     try {
-      setLoading(true);
+      setLoadingData(true);
       const dataHistory = await BookingApis.getBookings({
         patientId: detailPatient?.patientId,
         status: ['DONE'],
@@ -53,10 +57,10 @@ const DetailPatient = ({
         })
         setDataHistoryPatient(listHistory);
       }
-      setLoading(false);
+      setLoadingData(false);
     } catch (error) {
       console.log('error: ', error);
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -89,21 +93,21 @@ const DetailPatient = ({
     }
   ];
 
-
   const handleSubmit = async (values) => {
-    console.log('value: ', values);
-
     try {
+      setLoading(true);
       const { note, ...res } = values;
       const dataRes = await BookingApis.updateBooking({ userNote: note }, detailPatient.idBooking);
-      console.log('dataRes: ', dataRes);
-
+      if (dataRes?.data === true) {
+        toast.success('Thêm ghi chú thành công');
+        setLoading(false);
+      }
     } catch (error) {
       console.log('error: ', error);
       toast.error('Thêm ghi chú không thành công!');
+      setLoading(false);
     }
   }
-
   return (
     <Modal
       className='detail_modal'
@@ -124,7 +128,7 @@ const DetailPatient = ({
       footer={false}
     >
       <Spin spinning={loading}>
-        <div style={{ height: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
+        <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
           <Form
             name='patient'
             onFinish={(values) => handleSubmit(values)}
@@ -175,9 +179,15 @@ const DetailPatient = ({
                 <Form.Item
                   name={'note'}
                   label={<span className='txt_label'>Ghi chú</span>}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Ghi chú không được trống!',
+                    }
+                  ]}
                 >
                   <TextArea
-                    disabled
+                    disabled={!(type === 'new_patient')}
                     rows={4}
                     placeholder={detailPatient?.doctorNote ? 'Ghi chú' : 'Không có thông tin'}
                   />
@@ -188,22 +198,27 @@ const DetailPatient = ({
               <Button className='btn_cancel' danger size='middle' onClick={() => handleCancelModal()}>
                 Hủy
               </Button>
+              {/* Chưa luư đc  */}
+              {type === 'new_patient' && (
+                <Button disabled={disabledBtnSave} className='btn_add' size='middle' htmlType='submit' type='primary'>
+                  Lưu
+                </Button>
+              )}
 
-              {/* <Button disabled={disabledBtnSave} className='btn_add' size='middle' htmlType='submit' type='primary'>
-                Lưu
-              </Button> */}
 
             </Col>
           </Form>
-          <div className="history">
-            <Divider>Lịch sử khám</Divider>
-            <Table
-              loading={loading}
-              rowKey={'id'}
-              dataSource={dataHistoryPatient}
-              columns={columns}
-            />
-          </div>
+          {type === 'new_patient' && (
+            <div className="history">
+              <Divider>Lịch sử khám</Divider>
+              <Table
+                loading={loadingData}
+                rowKey={'id'}
+                dataSource={dataHistoryPatient}
+                columns={columns}
+              />
+            </div>
+          )}
         </div>
       </Spin>
     </Modal>

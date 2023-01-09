@@ -19,7 +19,7 @@ const AppointmentSchedule = () => {
   //   pageSize: 100,
   // });
   const currentDate = moment(dateNow).format('YYYY-MM-DDT00:00:00');
-  const [dataPatient, setDataPatient] = useState([])
+  const [dataPatient, setDataPatient] = useState([]);
   const [doctor, setDoctor] = useState(null);
   const [detailPatient, setDetailPatient] = useState(null); // {}
   const [showModalDetail, setModalDetail] = useState(false);
@@ -65,6 +65,7 @@ const AppointmentSchedule = () => {
             email: item?.patient.email || '',
             address: item?.patient?.address || '',
             doctorNote: item?.patient.userNote || '',
+            patientId: item?.patient?.id,
           }
         })
         setDataPatient(mapDataPatient || []);
@@ -140,7 +141,8 @@ const AppointmentSchedule = () => {
             }}
           >Chi tiết</Button>
           <Button
-            disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
+            // disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
+            disabled={!(moment(currentDate).isSame(moment(selectDate)))}
             className="btn_send"
             style={{
               minWidth: '50px'
@@ -205,7 +207,7 @@ const AppointmentSchedule = () => {
         detailPatient={detailPatient}
         showModal={showModalDetail}
         handleCancelModal={() => setModalDetail(false)}
-        disabledBtnSave={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
+      // disabledBtnSave={!moment(currentDate).isBefore(moment(selectDate))}
       />
 
     </div>

@@ -11,8 +11,12 @@ const BookingApis = {
     const urlParam = `bookings/${bookingId}`;
 
     return requestClient.put(urlParam, data);
+  },
+
+  getBookingByClinic(params) {
+    const urlParam = `bookings/clinic/`;
+    return requestClient.get(urlParam, { params: params });
   }
 };
-
 
 export default BookingApis;

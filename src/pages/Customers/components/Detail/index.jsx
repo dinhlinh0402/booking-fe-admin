@@ -1,9 +1,10 @@
-import { DownOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, DatePicker, Dropdown, Input, Space } from 'antd';
+import { DownOutlined, EditOutlined, FormOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, DatePicker, Dropdown, Input, Space, Spin, Table, Tag } from 'antd';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { useLocation, useParams, useHistory } from "react-router-dom";
+import BookingApis from '../../../../apis/Bookings';
 import UserApis from '../../../../apis/User';
 import BackIcon from '../../../../components/Icon/Common/BackIcon';
 import FilterIcon from '../../../../components/Icon/Doctor/FilterIcon';
@@ -24,11 +25,14 @@ const DetailCustomer = () => {
   const [isModalUpdate, setModalUpdate] = useState(false);
   const [dataCustomerModal, setDataCustomerModal] = useState({});
   const [dataInfoCustomer, setDataInfoCustomer] = useState({});
-
-  const history = useHistory();
-  let location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const [listHistory, setListHistory] = useState([]);
   // console.log('location: ', location);
 
+  let date1 = moment('2023-01-08T10:29:23');
+  let date2 = moment('2023-01-09T12:06:55');
+  let diff = date2.diff(date1, 'hours');
+  console.log('diff: ', diff);
   let { customerId } = useParams();
 
   useEffect(() => {
@@ -36,12 +40,15 @@ const DetailCustomer = () => {
   }, [])
 
   useEffect(() => {
-    if (customerId && !isModalUpdate)
+    if (customerId && !isModalUpdate) {
       getInfoCustomer(customerId);
+      getHistory();
+    }
   }, [customerId, isModalUpdate])
 
   const getInfoCustomer = async (customerId) => {
     try {
+      setLoading(true);
       const dataRes = await UserApis.getUserById(customerId);
       if (dataRes.status === 200) {
         const { data } = dataRes
@@ -58,8 +65,42 @@ const DetailCustomer = () => {
         })
         setDataInfoCustomer(data);
       }
+      setLoading(false);
     } catch (error) {
       console.log('error: ', error);
+      setLoading(false);
+    }
+  }
+
+  const getHistory = async () => {
+    try {
+      setLoading(true);
+      const dataHistory = await BookingApis.getBookings({
+        page: 1,
+        take: 100,
+        patientId: customerId,
+      });
+      console.log('dataHistory: ', dataHistory);
+      if (dataHistory?.data?.data.length) {
+        const { data } = dataHistory?.data;
+        const mapData = data?.map((item, idx) => {
+          const doctor = `${item?.doctor.firstName ? item?.doctor.firstName : ''} ${item?.doctor?.middleName ? item?.doctor?.middleName : ''} ${item?.doctor?.lastName ? item?.doctor?.lastName : ''}`.trim();
+          return {
+            id: item.id,
+            stt: idx + 1,
+            date: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')} ${moment(item?.schedule?.timeEnd).format('DD/MM/YYYY')}`,
+            doctor: doctor,
+            clinic: item?.doctor?.clinic?.name || '',
+            prescription: 'Chua lay dc',
+            status: item.status,
+          }
+        })
+        setListHistory(mapData || [])
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('error: ', error);
+      setLoading(false);
     }
   }
 
@@ -91,103 +132,192 @@ const DetailCustomer = () => {
     }
   };
 
+  const columns = [
+    {
+      title: 'STT',
+      dataIndex: 'stt',
+      key: 'stt',
+      width: 20,
+    },
+    {
+      title: 'Ngày khám',
+      dataIndex: 'date',
+      key: 'date',
+      width: 50,
+    },
+    {
+      title: 'Tên bác sĩ',
+      dataIndex: 'doctor',
+      key: 'doctor',
+      ellipsis: true,
+      width: 55
+    },
+    {
+      title: 'Tên phòng khám',
+      dataIndex: 'clinic',
+      key: 'clinic',
+      ellipsis: true,
+      width: 55
+    },
+    {
+      title: 'Đơn thuốc',
+      dataIndex: 'prescription',
+      key: 'prescription',
+      ellipsis: true,
+      width: 55
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 50,
+      align: 'center',
+      render: (_, record) => {
+        let color = '';
+        let text = '';
+        if (record.status === 'WAITING') {
+          color = 'warning';
+          text = 'Chưa xác nhận';
+        }
+        else if (record.status === 'CANCLE') {
+          color = 'error';
+          text = 'Đã hủy';
+        }
+        else if (record.status === 'DONE') {
+          color = 'success';
+          text = 'Đã hoàn thành';
+        }
+        else if (record.status === 'CONFIRMED') {
+          color = 'processing';
+          text = 'Đã xác nhận';
+        }
+        else color = 'red';
+
+        return (
+          <>
+            <Tag color={color} key={record.status}>
+              {text}
+            </Tag>
+          </>
+        )
+      }
+    }
+  ]
+  console.log('listHistory: ', listHistory);
+
   return (
     <>
-      <div className='header_detail_customer'>
-        <Space>
-          <BackIcon
-            onClick={handleBack}
-            style={{
-              cursor: 'pointer',
-              height: '100%'
-            }}
-          />
-          <span className='name_customer'>
-            {`${dataInfoCustomer.firstName || ''} ${dataInfoCustomer.middleName || ''} ${dataInfoCustomer.lastName || ''}`.trim()}
-          </span>
-        </Space>
-      </div>
-
-      <div className="detail_customer_container">
-        <div className="detail_customer_function">
-          <Space>
-            <Button
-              id={'btn__filter'}
-              icon={
-                <FilterIcon
-                  style={{
-                    transform: 'translateY(2px)',
-                    fill: `${showFilter ? '#3863EF' : 'none'}`,
-                  }}
-                />
-              }
-              onClick={() => setShowFilter(!showFilter)}
-            />
-            <Input
-              className='search_doctor'
-              size="large"
-              placeholder="Tìm kiếm"
-              suffix={<SearchOutlined />}
-              onChange={(e) => handleSearch(e)}
-            />
-          </Space>
-
-          <div className='list_button'>
-            <Button
-              className='button'
-              size="large"
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => setModalUpdate(true)}
-            >
-              Sửa thông tin
-            </Button>
-          </div>
+      {loading ? (
+        <div className="spin">
+          <Spin />
         </div>
+      ) : (
+        <>
+          <div className='header_detail_customer'>
+            <Space>
+              <BackIcon
+                onClick={handleBack}
+                style={{
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              />
+              <span className='name_customer'>
+                {`${dataInfoCustomer.firstName || ''} ${dataInfoCustomer.middleName || ''} ${dataInfoCustomer.lastName || ''}`.trim()}
+              </span>
+            </Space>
+          </div>
 
-        {showFilter && (
-          <Space
-            size={24}
-            style={{ marginTop: '10px', marginBottom: '20px', color: 'rgba(17, 17, 17, 0.45)' }}
-          >
-            <Dropdown
-              overlay={
-                <Card className='cardBody'>
-                  <span>Thời gian tạo</span>
-                  <br />
-                  <RangePicker
-                    ranges={{
-                      Now: [moment(), moment()],
-                    }}
-                    placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
-                    // showTime={{ format: 'HH:mm' }}
-                    format='DD-MM-YYYY'
-                    disabledDate={(current) => moment() <= current}
-                    // onOk={onOkCreatedAt}
-                    onChange={handleChangePickerExaminationDay}
-                  />
-                </Card>
-              }
-              className='filter__dropdown'
-              overlayStyle={{ width: '300px' }}
-              trigger={['click']}
-            >
-              <a>
-                <Space
-                  style={{
-                    color: `${(examinationDay || []).length > 0 ? 'rgba(17, 17, 17, 0.75)' : ''
-                      }`,
-                  }}
+          <div className="detail_customer_container">
+            <div className="detail_customer_function">
+              <Space>
+                <Button
+                  id={'btn__filter'}
+                  icon={
+                    <FilterIcon
+                      style={{
+                        transform: 'translateY(2px)',
+                        fill: `${showFilter ? '#3863EF' : 'none'}`,
+                      }}
+                    />
+                  }
+                  onClick={() => setShowFilter(!showFilter)}
+                />
+                <Input
+                  className='search_doctor'
+                  size="large"
+                  placeholder="Tìm kiếm"
+                  suffix={<SearchOutlined />}
+                  onChange={(e) => handleSearch(e)}
+                />
+              </Space>
+
+              <div className='list_button'>
+                <Button
+                  className='button'
+                  size="large"
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => setModalUpdate(true)}
                 >
-                  Thời gian tạo
-                  <DownOutlined />
-                  {(examinationDay || []).length > 0 && <span id='dot__active' />}
-                </Space>
-              </a>
-            </Dropdown>
-          </Space>
-        )}
-      </div>
+                  Sửa thông tin
+                </Button>
+              </div>
+            </div>
+
+            {showFilter && (
+              <Space
+                size={24}
+                style={{ marginTop: '10px', marginBottom: '20px', color: 'rgba(17, 17, 17, 0.45)' }}
+              >
+                <Dropdown
+                  overlay={
+                    <Card className='cardBody'>
+                      <span>Thời gian tạo</span>
+                      <br />
+                      <RangePicker
+                        ranges={{
+                          Now: [moment(), moment()],
+                        }}
+                        placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
+                        // showTime={{ format: 'HH:mm' }}
+                        format='DD-MM-YYYY'
+                        disabledDate={(current) => moment() <= current}
+                        // onOk={onOkCreatedAt}
+                        onChange={handleChangePickerExaminationDay}
+                      />
+                    </Card>
+                  }
+                  className='filter__dropdown'
+                  overlayStyle={{ width: '300px' }}
+                  trigger={['click']}
+                >
+                  <a>
+                    <Space
+                      style={{
+                        color: `${(examinationDay || []).length > 0 ? 'rgba(17, 17, 17, 0.75)' : ''
+                          }`,
+                      }}
+                    >
+                      Thời gian tạo
+                      <DownOutlined />
+                      {(examinationDay || []).length > 0 && <span id='dot__active' />}
+                    </Space>
+                  </a>
+                </Dropdown>
+              </Space>
+            )}
+
+            {/* TABLE */}
+            <Table
+              loading={loading}
+              rowKey={'id'}
+              dataSource={listHistory}
+              columns={columns}
+            />
+          </div>
+        </>
+      )}
 
       {isModalUpdate && (
         <AddEditUser
