@@ -4,17 +4,17 @@ const CustomerApis = {
   getCustomer(params) {
     const urlParam = 'user';
 
-    return requestClient.get(urlParam, { params });
+    return requestClient().get(urlParam, { params });
   },
 
   createCustomer(data) {
     const urlParam = 'user';
-    return requestClient.post(urlParam, data)
+    return requestClient().post(urlParam, data)
   },
 
   updateCustomer(userId, data) {
     const urlParam = `user/${userId}`;
-    return requestClient.put(urlParam, data);
+    return requestClient().put(urlParam, data);
   },
 };
 

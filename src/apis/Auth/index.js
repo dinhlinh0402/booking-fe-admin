@@ -4,7 +4,11 @@ import requestClient from "../RequestClient";
 const AuthApis = {
   login(data) {
     const urlParam = 'auth/login';
-    return requestClient.post(urlParam, data);
+    const instance = axios.create({
+      baseURL: "http://14.225.255.59:8000/",
+      // baseURL: "http://localhost:8000/",
+    })
+    return instance.post(urlParam, data);
   },
 
   authMe() {

@@ -6,6 +6,7 @@ import { FormOutlined, MailOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 import BookingApis from '../../apis/Bookings';
 import DetailPatient from "./compoments/DetailPatient";
+import ExaminationDone from "./compoments/ExaminationDone";
 
 const dateNow = new Date();
 
@@ -23,6 +24,7 @@ const AppointmentSchedule = () => {
   const [doctor, setDoctor] = useState(null);
   const [detailPatient, setDetailPatient] = useState(null); // {}
   const [showModalDetail, setModalDetail] = useState(false);
+  const [modalExamination, setModalExamination] = useState(false);
 
   useEffect(() => {
     const userLocal = JSON.parse(localStorage.getItem('user'));
@@ -66,6 +68,7 @@ const AppointmentSchedule = () => {
             address: item?.patient?.address || '',
             doctorNote: item?.patient.userNote || '',
             patientId: item?.patient?.id,
+            //Thiếu ghi chú của bác sĩ và link đơn thuốc
           }
         })
         setDataPatient(mapDataPatient || []);
@@ -142,14 +145,17 @@ const AppointmentSchedule = () => {
           >Chi tiết</Button>
           <Button
             // disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
-            disabled={!(moment(currentDate).isSame(moment(selectDate)))}
+            // disabled={!(moment(currenstDate).isSame(moment(selectDate)))} //đÚng
             className="btn_send"
             style={{
               minWidth: '50px'
             }}
             type="primary"
             icon={<MailOutlined />}
-
+            onClick={() => {
+              setDetailPatient(record);
+              setModalExamination(true);
+            }}
           >Gửi đơn thuốc</Button>
         </Space>
       )
@@ -208,6 +214,12 @@ const AppointmentSchedule = () => {
         showModal={showModalDetail}
         handleCancelModal={() => setModalDetail(false)}
       // disabledBtnSave={!moment(currentDate).isBefore(moment(selectDate))}
+      />
+
+      <ExaminationDone
+        showModal={modalExamination}
+        handleCancelModal={() => setModalExamination(false)}
+        detailPatient={detailPatient}
       />
 
     </div>
