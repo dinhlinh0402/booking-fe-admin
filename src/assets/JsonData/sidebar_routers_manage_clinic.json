@@ -12,16 +12,16 @@
     {
         "display_name": "Quản lý bác sĩ",
         "route": "/he-thong/quan-ly-bac-si",
-        "icon": "bx bx-package"
+        "icon": "bx bx-user"
     },
     {
         "display_name": "Quản lý phòng khám",
         "route": "/he-thong/quan-ly-phong-kham",
-        "icon": "bx bx-cart"
+        "icon": "bx bx-clinic"
     },
     {
         "display_name": "Quản lý kế hoạch khám bệnh",
         "route": "/he-thong/quan-ly-ke-hoach-kham-benh",
-        "icon": "bx bx-bar-chart-alt"
+        "icon": "bx bx-notepad"
     }
 ]

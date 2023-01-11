@@ -15,6 +15,9 @@ const NewPatient = () => {
   const [dataConfirmed, setDataConfirmed] = useState(null);
   const [dataCancel, setDataCancel] = useState(null);
   const [dataDone, setDataDone] = useState(null);
+  const [reset, setReset] = useState(0);
+  const [tabPane, setTabPane] = useState('new_patient')
+
   useEffect(() => {
     document.title = 'Quản lý bệnh nhân';
     const userLocal = JSON.parse(localStorage.getItem('user'));
@@ -26,7 +29,7 @@ const NewPatient = () => {
   useEffect(() => {
     if (user)
       getListBooking();
-  }, [user])
+  }, [user, reset])
 
   const getListBooking = async () => {
     try {
@@ -48,6 +51,14 @@ const NewPatient = () => {
     }
   }
 
+  const handleReset = () => {
+    setReset(prev => ++prev);
+  }
+
+  const handleChangeTab = (key) => {
+    setTabPane(key)
+  }
+
   return (
     <div>
       <h1>Quản lý bệnh nhân đặt lịch</h1>
@@ -59,18 +70,21 @@ const NewPatient = () => {
             <Spin />
           </div>) : (
           <Tabs
-            defaultActiveKey="new_patient"
+            defaultActiveKey={tabPane}
             type="card"
             size='middle'
+            onChange={handleChangeTab}
           >
             <Tabs.TabPane tab={`Bệnh nhân mới (${dataNewPatient?.totalWaiting || 0})`} key="new_patient">
               <TableNewPatient
                 dataNewPatient={dataNewPatient}
+                handleReset={handleReset}
               />
             </Tabs.TabPane>
             <Tabs.TabPane tab={`Đã xác nhận (${dataConfirmed?.totalConfirmed || 0})`} key="confirmed">
               <TableConfirmed
                 dataConfirmed={dataConfirmed}
+                handleReset={handleReset}
               />
             </Tabs.TabPane>
             <Tabs.TabPane tab={`Đã hủy (${dataCancel?.totalCancel || 0})`} key="cancel">

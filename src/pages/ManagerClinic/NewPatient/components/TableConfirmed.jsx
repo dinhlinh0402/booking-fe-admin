@@ -1,15 +1,21 @@
 import { FormOutlined } from "@ant-design/icons";
-import { Button, Space, Table } from "antd";
+import { Button, Modal, Space, Table } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import BookingApis from "../../../../apis/Bookings";
 import DetailPatient from "./DetailPatientBooking/DetailPatient";
 
 const TableConfirmed = ({
-  dataConfirmed
+  dataConfirmed,
+  handleReset,
 }) => {
   const [dataPatient, setDataPatient] = useState([]);
   const [detailPatient, setDetailPatient] = useState(null); // {}
   const [showModalDetail, setModalDetail] = useState(false);
+  const [showModalChangeStatus, setShowModalChangeStatus] = useState(false);
+  const [dataChange, setDataChange] = useState(null);
+
   useEffect(() => {
     if (dataConfirmed) {
       const listBooking = dataConfirmed?.dataConfirmed.map(item => {
@@ -38,6 +44,30 @@ const TableConfirmed = ({
       setDataPatient(listBooking || []);
     }
   }, [dataConfirmed])
+
+  const handleChangeStatus = async () => {
+    const { status, bookingId } = dataChange;
+    const listStatus = ['CANCEL', 'CONFIRMED'];
+    if (!dataChange || !listStatus.includes(status)) {
+      toast.error('Thay đổi trạng thái không thành công!');
+      return;
+    }
+    try {
+      const dataUpdate = await BookingApis.updateBooking({
+        status: status
+      }, bookingId);
+      if (dataUpdate.status === 200 && dataUpdate.data === true) {
+        toast.success('Thay đổi trạng thái thành công');
+      }
+      handleReset();
+      setDataChange(null);
+      setShowModalChangeStatus(false);
+    } catch (error) {
+      console.log('error: ', error);
+      toast.error('Thay đổi trạng thái không thành công!');
+      setDataChange(null);
+    }
+  }
 
   const columns = [
     {
@@ -124,6 +154,10 @@ const TableConfirmed = ({
             }}
             type="primary"
             danger
+            onClick={() => {
+              setShowModalChangeStatus(true);
+              setDataChange({ status: 'CANCEL', bookingId: record.idBooking })
+            }}
           >Hủy</Button>
         </Space>
       )
@@ -146,6 +180,23 @@ const TableConfirmed = ({
         // disabledBtnSave={!moment(currentDate).isBefore(moment(selectDate))}
         type='confirmed'
       />
+
+      <Modal
+        open={showModalChangeStatus}
+        onOk={handleChangeStatus}
+        onCancel={() => {
+          setDataChange(null);
+          setShowModalChangeStatus(false);
+        }}
+        cancelText={'Hủy'}
+        okText={'Xác nhận'}
+        className='confirm_delete_label'
+        width={370}
+      >
+        <h2 style={{ color: '#595959', fontWeight: 700, textAlign: 'center' }}>
+          Bạn có muốn hủy lịch hẹn không?
+        </h2>
+      </Modal>
     </div>
   )
 }

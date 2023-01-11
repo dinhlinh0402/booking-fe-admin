@@ -12,11 +12,11 @@
     {
         "display_name": "Lịch hẹn",
         "route": "/he-thong/lich-hen",
-        "icon": "bx bx-user-pin"
+        "icon": "bx bx-calendar"
     },
     {
         "display_name": "Kế hoạch khám bệnh",
         "route": "/he-thong/ke-hoach-kham-benh",
-        "icon": "bx bx-store-alt"
+        "icon": "bx bx-notepad"
     }
 ]
