@@ -14,7 +14,7 @@ const BookingApis = {
   },
 
   getBookingByClinic(params) {
-    const urlParam = `bookings/clinic/`;
+    const urlParam = `bookings/clinic`;
     return requestClient().get(urlParam, { params: params });
   }
 };

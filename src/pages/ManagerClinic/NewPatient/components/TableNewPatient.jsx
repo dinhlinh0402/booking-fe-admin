@@ -19,7 +19,21 @@ const TableNewPatient = ({
   useEffect(() => {
     if (dataNewPatient) {
       const listBooking = dataNewPatient?.dataWaiting.map(item => {
-        const namePatient = `${item?.patient.firstName ? item?.patient.firstName : ''} ${item?.patient?.middleName ? item?.patient?.middleName : ''} ${item?.patient?.lastName ? item?.patient?.lastName : ''}`.trim();
+        let namePatient = '';
+        let phoneNumber = '';
+        let gender = '';
+        let birthday = null;
+        if (item.type === 'FOR_MYSELF') {
+          namePatient = `${item?.patient.firstName ? item?.patient.firstName : ''} ${item?.patient?.middleName ? item?.patient?.middleName : ''} ${item?.patient?.lastName ? item?.patient?.lastName : ''}`.trim();
+          phoneNumber = item?.patient?.phoneNumber || '';
+          gender = item?.patient?.gender || '';
+          birthday = item?.patient?.birthday || null;
+        } else {
+          namePatient = item?.bookingRelatives?.name || '';
+          phoneNumber = item?.bookingRelatives?.phone || '';
+          gender = item?.bookingRelatives?.gender;
+          birthday = item?.bookingRelatives?.birthday || null;
+        }
         const nameDoctor = `${item?.doctor.firstName ? item?.doctor.firstName : ''} ${item?.doctor?.middleName ? item?.doctor?.middleName : ''} ${item?.doctor?.lastName ? item?.doctor?.lastName : ''}`.trim();
         return {
           idBooking: item.id,
@@ -28,15 +42,15 @@ const TableNewPatient = ({
           time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')}`,
           namePatient: namePatient,
           nameDoctor: nameDoctor,
-          gender: item?.patient?.gender || '',
-          birthday: item?.patient?.birthday || null,
-          phoneNumber: item?.patient?.phoneNumber || '',
+          gender: gender,
+          birthday: birthday,
+          phoneNumber: phoneNumber,
           status: item?.status || '',
           bookingDate: item.createdDate,
           reason: item?.reason || '',
           email: item?.patient.email || '',
           address: item?.patient?.address || '',
-          doctorNote: item?.userNote || '',
+          doctorNote: item?.patient.userNote || '',
           patientId: item?.patient?.id,
           date: moment(item.date).format('DD/MM/YYYY'),
         }

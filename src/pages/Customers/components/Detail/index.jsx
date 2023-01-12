@@ -84,6 +84,7 @@ const DetailCustomer = () => {
       if (dataHistory?.data?.data.length) {
         const { data } = dataHistory?.data;
         const mapData = data?.map((item, idx) => {
+
           const doctor = `${item?.doctor.firstName ? item?.doctor.firstName : ''} ${item?.doctor?.middleName ? item?.doctor?.middleName : ''} ${item?.doctor?.lastName ? item?.doctor?.lastName : ''}`.trim();
           return {
             id: item.id,
@@ -93,6 +94,8 @@ const DetailCustomer = () => {
             clinic: item?.doctor?.clinic?.name || '',
             prescription: 'Chua lay dc',
             status: item.status,
+            type: item.type === 'FOR_MYSELF' ? 'Đặt cho bản thân' : `Đặt hộ: ${item.bookingRelatives.name}`,
+            reason: item?.reason || '',
           }
         })
         setListHistory(mapData || [])
@@ -146,6 +149,19 @@ const DetailCustomer = () => {
       width: 50,
     },
     {
+      title: 'Loại',
+      dataIndex: 'type',
+      key: 'type',
+      width: 50,
+    },
+    {
+      title: 'Lý do',
+      dataIndex: 'reason',
+      key: 'reason',
+      ellipsis: true,
+      width: 50,
+    },
+    {
       title: 'Tên bác sĩ',
       dataIndex: 'doctor',
       key: 'doctor',
@@ -179,7 +195,7 @@ const DetailCustomer = () => {
           color = 'warning';
           text = 'Chưa xác nhận';
         }
-        else if (record.status === 'CANCLE') {
+        else if (record.status === 'CANCEL') {
           color = 'error';
           text = 'Đã hủy';
         }
@@ -203,7 +219,6 @@ const DetailCustomer = () => {
       }
     }
   ]
-  console.log('listHistory: ', listHistory);
 
   return (
     <>
