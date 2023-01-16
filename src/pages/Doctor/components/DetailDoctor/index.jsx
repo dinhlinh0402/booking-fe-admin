@@ -426,7 +426,7 @@ const DetailDoctor = () => {
                       <Col span={6}>
                         <Form.Item
                           name={'avatar'}
-                          label={<span className='txt_label'>Ảnh chuyên khoa</span>}
+                          label={<span className='txt_label'>Ảnh</span>}
                         // rules={[
                         //   {
                         //     required: true,

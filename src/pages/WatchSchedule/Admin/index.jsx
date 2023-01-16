@@ -197,7 +197,7 @@ const WatchScheduleForAdmin = () => {
               fontSize: '14px',
             }}
             showToday={false}
-            disabledDate={(current) => moment() >= current}
+            // disabledDate={(current) => moment() >= current}
             onChange={onChangeDate}
             size='large'
           />
