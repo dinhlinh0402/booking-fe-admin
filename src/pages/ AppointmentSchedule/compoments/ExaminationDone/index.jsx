@@ -2,6 +2,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, message, Modal, Row, Spin, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import HistoryApis from "../../../../apis/Historyy";
 import './index.scss';
 
 const { TextArea } = Input;
@@ -16,9 +17,9 @@ const ExaminationDone = ({
   useEffect(() => {
     if (detailPatient) {
       form.setFieldsValue({
-        name: detailPatient?.name || '',
+        namePatient: detailPatient?.name || '',
         email: detailPatient?.email || '',
-        note: detailPatient?.note || '',
+        // note: detailPatient?.note || '',
       })
     }
   }, [detailPatient])
@@ -45,8 +46,8 @@ const ExaminationDone = ({
     return checkFile;
   };
 
-  const handleSubmit = (values) => {
-    console.log(values);
+  const handleSubmit = async (values) => {
+    setLoading(true);
     const { file, fileList } = values.file;
     const typeFile = [
       'application/pdf',
@@ -57,26 +58,35 @@ const ExaminationDone = ({
     const checkFile = typeFile.includes(file.type);
     if (!checkFile) {
       message.error('Bạn chỉ có thể tải lên file doc, docx hoặc pdf!');
+      setLoading(false);
       return;
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
       message.error('File phải nhỏ hơn 2MB!');
+      setLoading(false);
       return;
     }
     try {
       let formData = new FormData();
+      formData.append('bookingId', detailPatient?.idBooking);
       for (const item in values) {
         if (item === 'file') {
           formData.append('file', values[item].fileList[0]?.originFileObj);
         } else if (!values[item]) break;
         else formData.append(item, values[item]);
       }
-
-      console.log('asdasd: ', formData.get('name'));
+      const dataCreate = await HistoryApis.createHistoryBooking(formData)
+      if (dataCreate?.data) {
+        handleCancelModal();
+        form.resetFields();
+        toast.success('Gửi đơn thuốc thành công!');
+      }
+      setLoading(false);
     } catch (error) {
       console.log('error: ', error);
       toast.error('Gửi đơn thuốc không thành công!')
+      setLoading(false);
     }
   }
 
@@ -109,7 +119,7 @@ const ExaminationDone = ({
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item
-                name={'name'}
+                name={'namePatient'}
                 label={<span className='txt_label'>Tên bệnh nhân</span>}
               >
                 <Input
@@ -134,7 +144,7 @@ const ExaminationDone = ({
 
             <Col span={24}>
               <Form.Item
-                name={'note'}
+                name={'doctorNote'}
                 label={<span className='txt_label'>Ghi chú của bác sĩ</span>}
               >
                 <TextArea

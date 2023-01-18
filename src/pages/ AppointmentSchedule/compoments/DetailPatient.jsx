@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import BookingApis from "../../../apis/Bookings";
+import baseURL from "../../../utils/url";
 import './DetailPatient.scss';
 
 const { TextArea } = Input;
@@ -23,7 +24,7 @@ const DetailPatient = ({
         name: detailPatient.name,
         email: detailPatient.email,
         reason: detailPatient.reason,
-        note: detailPatient.doctorNote,
+        userNote: detailPatient.userNote,
       });
 
       getHistoryPatient();
@@ -45,10 +46,13 @@ const DetailPatient = ({
             id: item.id,
             timeStart: item?.schedule.timeStart,
             timeEnd: item?.schedule.timeEnd,
-            time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')}`,
+            time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')} ${moment(item?.schedule?.timeEnd).format('DD/MM/YYYY')}`,
             nameDoctor: nameDoctor,
             date: moment(item.date).format('DD/MM/YYYY'),
             reason: item?.reason || '',
+            userNote: item?.userNote || '',
+            prescription: item?.history?.prescription ? `${baseURL}${item?.history?.prescription}` : '',
+            doctorNote: item?.history?.doctorNote || '',
           }
         })
         setDataHistoryPatient(listHistory);
@@ -68,12 +72,6 @@ const DetailPatient = ({
       width: 50,
     },
     {
-      title: 'Ngày khám',
-      dataIndex: 'time',
-      key: 'time',
-      width: 50,
-    },
-    {
       title: 'Tên bác sĩ',
       dataIndex: 'nameDoctor',
       key: 'nameDoctor',
@@ -86,18 +84,34 @@ const DetailPatient = ({
       key: 'reason',
       // ellipsis: true,
       width: 55
-    }
+    },
+    {
+      title: 'Đơn thuốc',
+      dataIndex: 'prescription',
+      key: 'prescription',
+      ellipsis: true,
+      width: 55,
+      render: (value) => (
+        <>
+          {value ? (
+            <a download href={value}>
+              <div style={{
+                color: '#1890ff'
+              }}>Xem đơn thuốc</div>
+            </a>
+          ) : ''}
+        </>
+      )
+    },
   ];
 
 
   const handleSubmit = async (values) => {
-    console.log('value: ', values);
-
     try {
       const { note, ...res } = values;
       const dataRes = await BookingApis.updateBooking({ userNote: note }, detailPatient.idBooking);
       console.log('dataRes: ', dataRes);
-
+      // thêm ghi chú 
     } catch (error) {
       console.log('error: ', error);
       toast.error('Thêm ghi chú không thành công!');
@@ -173,7 +187,7 @@ const DetailPatient = ({
 
               <Col span={24}>
                 <Form.Item
-                  name={'note'}
+                  name={'userNote'}
                   label={<span className='txt_label'>Ghi chú</span>}
                 >
                   <TextArea

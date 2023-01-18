@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import BookingApis from '../../apis/Bookings';
 import DetailPatient from "./compoments/DetailPatient";
 import ExaminationDone from "./compoments/ExaminationDone";
+import baseURL from "../../utils/url";
 
 const dateNow = new Date();
 
@@ -34,9 +35,9 @@ const AppointmentSchedule = () => {
   }, [])
 
   useEffect(() => {
-    if (selectDate && doctor)
+    if (selectDate && doctor && !modalExamination)
       getBooking();
-  }, [selectDate, doctor])
+  }, [selectDate, doctor, modalExamination])
 
   const getBooking = async () => {
     try {
@@ -51,13 +52,22 @@ const AppointmentSchedule = () => {
       if (dataBooking.status === 200 && dataBooking?.data?.data.length) {
         const { data } = dataBooking?.data;
         const mapDataPatient = data.map(item => {
-          const name = `${item?.patient.firstName ? item?.patient.firstName : ''} ${item?.patient?.middleName ? item?.patient?.middleName : ''} ${item?.patient?.lastName ? item?.patient?.lastName : ''}`.trim();
+          let name = '';
+          let email = '';
+          if (item.type === 'FOR_MYSELF') {
+            name = `${item?.patient.firstName ? item?.patient.firstName : ''} ${item?.patient?.middleName ? item?.patient?.middleName : ''} ${item?.patient?.lastName ? item?.patient?.lastName : ''}`.trim();
+            email = item?.parse?.email || '';
+          } else {
+            name = item?.bookingRelatives?.name || '';
+            email = item?.bookingRelatives?.email || '';
+          }
           return {
             idBooking: item.id,
             timeStart: item?.schedule.timeStart,
             timeEnd: item?.schedule.timeEnd,
             time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')}`,
             name: name,
+            email: email,
             gender: item?.patient?.gender || '',
             birthday: item?.patient?.birthday || null,
             phoneNumber: item?.patient?.phoneNumber || '',
@@ -66,9 +76,11 @@ const AppointmentSchedule = () => {
             reason: item?.reason || '',
             email: item?.patient.email || '',
             address: item?.patient?.address || '',
-            doctorNote: item?.patient.userNote || '',
+            userNote: item?.userNote || '',
             patientId: item?.patient?.id,
             //Thiếu ghi chú của bác sĩ và link đơn thuốc
+            // prescription: item?.history?.prescription ? `${baseURL}${item?.history?.prescription}` : '',
+            // doctorNote: item?.history?.doctorNote || '',
           }
         })
         setDataPatient(mapDataPatient || []);
@@ -82,8 +94,8 @@ const AppointmentSchedule = () => {
   }
 
   const onChange = (date, stringDate) => {
-    console.log('date: ', date);
-    console.log('stringDate: ', stringDate);
+    // console.log('date: ', date);
+    // console.log('stringDate: ', stringDate);
     setSelectDate(moment(date).format('YYYY-MM-DDTHH:mm:ss'));
   };
 
@@ -143,20 +155,24 @@ const AppointmentSchedule = () => {
               setModalDetail(true);
             }}
           >Chi tiết</Button>
-          <Button
-            // disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
-            // disabled={!(moment(currenstDate).isSame(moment(selectDate)))} //đÚng
-            className="btn_send"
-            style={{
-              minWidth: '50px'
-            }}
-            type="primary"
-            icon={<MailOutlined />}
-            onClick={() => {
-              setDetailPatient(record);
-              setModalExamination(true);
-            }}
-          >Gửi đơn thuốc</Button>
+          {
+            record.status !== 'DONE' && (
+              <Button
+                // disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
+                disabled={!(moment(dateNow).isSame(moment(selectDate)))} //đÚng
+                className="btn_send"
+                style={{
+                  minWidth: '50px'
+                }}
+                type="primary"
+                icon={<MailOutlined />}
+                onClick={() => {
+                  setDetailPatient(record);
+                  setModalExamination(true);
+                }}
+              >Gửi đơn thuốc</Button>
+            )
+          }
         </Space>
       )
     }

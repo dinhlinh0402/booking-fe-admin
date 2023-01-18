@@ -8,6 +8,7 @@ import BookingApis from '../../../../apis/Bookings';
 import UserApis from '../../../../apis/User';
 import BackIcon from '../../../../components/Icon/Common/BackIcon';
 import FilterIcon from '../../../../components/Icon/Doctor/FilterIcon';
+import baseURL from '../../../../utils/url';
 import AddEditUser from '../AddEditUser';
 import './index.scss';
 const { RangePicker } = DatePicker;
@@ -27,7 +28,6 @@ const DetailCustomer = () => {
   const [dataInfoCustomer, setDataInfoCustomer] = useState({});
   const [loading, setLoading] = useState(false);
   const [listHistory, setListHistory] = useState([]);
-  // console.log('location: ', location);
 
   let date1 = moment('2023-01-08T10:29:23');
   let date2 = moment('2023-01-09T12:06:55');
@@ -96,6 +96,8 @@ const DetailCustomer = () => {
             status: item.status,
             type: item.type === 'FOR_MYSELF' ? 'Đặt cho bản thân' : `Đặt hộ: ${item.bookingRelatives.name}`,
             reason: item?.reason || '',
+            prescription: item?.history?.prescription ? `${baseURL}${item?.history?.prescription}` : '',
+            doctorNote: item?.history?.doctorNote || '',
           }
         })
         setListHistory(mapData || [])
@@ -180,7 +182,18 @@ const DetailCustomer = () => {
       dataIndex: 'prescription',
       key: 'prescription',
       ellipsis: true,
-      width: 55
+      width: 55,
+      render: (value) => (
+        <>
+          {value ? (
+            <a download href={value}>
+              <div style={{
+                color: '#1890ff'
+              }}>Xem đơn thuốc</div>
+            </a>
+          ) : ''}
+        </>
+      )
     },
     {
       title: 'Trạng thái',
