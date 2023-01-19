@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import BookingApis from "../../../../../apis/Bookings";
+import baseURL from "../../../../../utils/url";
 import './DetailPatient.scss';
 
 const { TextArea } = Input;
@@ -49,10 +50,11 @@ const DetailPatient = ({
             id: item.id,
             timeStart: item?.schedule.timeStart,
             timeEnd: item?.schedule.timeEnd,
-            time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')}`,
+            time: `${moment(item?.schedule?.timeStart).format('HH:mm')} - ${moment(item?.schedule?.timeEnd).format('HH:mm')} ${moment(item?.schedule?.timeEnd).format('DD/MM/YYYY')}`,
             nameDoctor: nameDoctor,
             date: moment(item.date).format('DD/MM/YYYY'),
             reason: item?.reason || '',
+            prescription: item?.history?.prescription ? `${baseURL}${item?.history?.prescription}` : '',
           }
         })
         setDataHistoryPatient(listHistory);
@@ -72,12 +74,6 @@ const DetailPatient = ({
       width: 50,
     },
     {
-      title: 'Ngày khám',
-      dataIndex: 'time',
-      key: 'time',
-      width: 50,
-    },
-    {
       title: 'Tên bác sĩ',
       dataIndex: 'nameDoctor',
       key: 'nameDoctor',
@@ -90,7 +86,25 @@ const DetailPatient = ({
       key: 'reason',
       // ellipsis: true,
       width: 55
-    }
+    },
+    {
+      title: 'Đơn thuốc',
+      dataIndex: 'prescription',
+      key: 'prescription',
+      ellipsis: true,
+      width: 55,
+      render: (value) => (
+        <>
+          {value ? (
+            <a download href={value}>
+              <div style={{
+                color: '#1890ff'
+              }}>Xem đơn thuốc</div>
+            </a>
+          ) : ''}
+        </>
+      )
+    },
   ];
 
   const handleSubmit = async (values) => {

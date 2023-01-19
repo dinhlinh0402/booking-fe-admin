@@ -141,7 +141,7 @@ const DetailPatient = ({
         <div style={{ height: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
           <Form
             name='patient'
-            onFinish={(values) => handleSubmit(values)}
+            // onFinish={(values) => handleSubmit(values)}
             autoComplete='off'
             layout='vertical'
             form={form}
