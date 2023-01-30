@@ -5,11 +5,6 @@
         "icon": "bx bx-category-alt"
     },
     {
-        "display_name": "Duyệt lịch khám",
-        "route": "/he-thong/duyet-lich-kham",
-        "icon": "bx bx-category-alt"
-    },
-    {
         "display_name": "Lịch hẹn",
         "route": "/he-thong/lich-hen",
         "icon": "bx bx-calendar"

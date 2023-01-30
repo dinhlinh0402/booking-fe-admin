@@ -24,6 +24,7 @@ import PersonalInformation from '../pages/PersonalInformation';
 import NotFoundPage from '../pages/NotFound';
 import ChangePassword from '../pages/Auth/ChangePassword';
 import WatchScheduleForAdmin from '../pages/WatchSchedule/Admin';
+import DashboardAdmin from '../pages/Dashboard/Admin';
 
 const RoutesAdmin = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -66,7 +67,7 @@ const RoutesAdmin = () => {
             </Route> */}
                     <Route path='/admin' exact>
                         <RequireAuth>
-                            <Dashboard />
+                            <DashboardAdmin />
                         </RequireAuth>
                     </Route>
                     <Route path='/admin/quan-ly-khach-hang'>

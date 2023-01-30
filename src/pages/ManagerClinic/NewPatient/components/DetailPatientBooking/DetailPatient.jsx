@@ -134,7 +134,7 @@ const DetailPatient = ({
       onCancel={() => {
         if (!loading) {
           handleCancelModal();
-          form.resetFields()
+          // form.resetFields()
         }
       }}
       width={700}

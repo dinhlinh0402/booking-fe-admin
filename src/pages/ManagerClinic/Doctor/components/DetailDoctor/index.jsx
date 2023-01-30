@@ -70,7 +70,7 @@ const DetailDoctorForManagerClinic = () => {
   useEffect(() => {
     document.title = 'Thông tin bác sĩ';
     const userLocalStorage = JSON.parse(localStorage.getItem('user'));
-    if(userLocalStorage) getListSpecialty(userLocalStorage)
+    if (userLocalStorage) getListSpecialty(userLocalStorage)
   }, [])
 
   useEffect(() => {
@@ -205,8 +205,8 @@ const DetailDoctorForManagerClinic = () => {
       for (const item in value) {
         if (item === 'avatar') {
           formData.append('file', value[item].fileList[0]?.originFileObj);
-        } 
-        if(!value[item]) break;
+        }
+        if (!value[item]) break;
 
         formData.append(item, value[item]);
       }
@@ -370,7 +370,7 @@ const DetailDoctorForManagerClinic = () => {
                       <Col span={6}>
                         <Form.Item
                           name={'avatar'}
-                          label={<span className='txt_label'>Ảnh chuyên khoa</span>}
+                          label={<span className='txt_label'>Ảnh bác sĩ</span>}
                         // rules={[
                         //   {
                         //     required: true,
@@ -555,7 +555,7 @@ const DetailDoctorForManagerClinic = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-    
+
                       <Col span={14}>
                         <Form.Item
                           name={'specialtyId'}
@@ -743,9 +743,9 @@ const DetailDoctorForManagerClinic = () => {
                       {editIntroduce && !doctorInforId && (
                         <div style={{ textAlign: 'center', marginTop: '30px', width: '100%' }}>
                           <Col span={24} >
-                            <Button 
-                              className='btn_cancel' 
-                              danger size='middle' 
+                            <Button
+                              className='btn_cancel'
+                              danger size='middle'
                               onClick={() => setEditIntroduce(false)}
                             >
                               Hủy

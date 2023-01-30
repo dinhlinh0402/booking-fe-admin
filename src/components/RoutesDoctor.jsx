@@ -26,6 +26,8 @@ import DoctorForManagerClinic from '../pages/ManagerClinic/Doctor';
 import ClinicForManagerClinic from '../pages/ManagerClinic/Clinic';
 import DetailDoctorForManagerClinic from '../pages/ManagerClinic/Doctor/components/DetailDoctor';
 import NewPatient from '../pages/ManagerClinic/NewPatient/indedx';
+import DashboardManager from '../pages/Dashboard/ManagerClinic';
+import DashboardDoctor from '../pages/Dashboard/Doctor';
 
 const RoutesDoctor = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -55,6 +57,8 @@ const RoutesDoctor = () => {
             history.push('/login');
         }
     }
+
+    console.log('user: ', user);
     return (
         <div className="layout__content">
             <Topnav userData={user} />
@@ -66,7 +70,11 @@ const RoutesDoctor = () => {
 
                     <Route path='/he-thong' exact>
                         <RequireAuth>
-                            <Dashboard />
+                            {user && user.role === 'DOCTOR' ? (
+                                <DashboardDoctor />
+                            ) : (
+                                <DashboardManager />
+                            )}
                         </RequireAuth>
                     </Route>
 
