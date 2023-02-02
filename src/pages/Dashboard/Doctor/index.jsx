@@ -48,7 +48,6 @@ const DashboardDoctor = () => {
         doctorId: userLocal?.id || undefined,
         status: ['DONE'],
       });
-      console.log('dataBookingDone: ', dataBookingDone);
       if (dataBookingDone.status === 200 && dataBookingDone?.data?.data.length) {
         setCountAppointentDone(dataBookingDone?.data?.meta?.itemCount || 0);
       }
@@ -68,9 +67,8 @@ const DashboardDoctor = () => {
         date: moment(new Date).format('YYYY-MM-DDT00:00:00'),
         status: ['CONFIRMED', 'DONE'],
       });
-      console.log('dataBookingToday: ', dataBookingToday);
       if (dataBookingToday.status === 200 && dataBookingToday?.data?.data.length) {
-        setCountAppointentDone(dataBookingToday?.data?.meta?.itemCount || 0);
+        setCountAppointentToday(dataBookingToday?.data?.meta?.itemCount || 0);
       }
       setLoading(false);
 

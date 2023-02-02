@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, DatePicker, Space, Table } from "antd";
+import { Button, DatePicker, Space, Table, Tag } from "antd";
 import moment from "moment";
 import './index.scss';
 import { FormOutlined, MailOutlined } from "@ant-design/icons";
@@ -49,7 +49,7 @@ const AppointmentSchedule = () => {
       });
 
       // console.log('dataBooking: ', dataBooking);
-      if (dataBooking.status === 200 && dataBooking?.data?.data.length) {
+      if (dataBooking.status === 200 && dataBooking?.data?.data) {
         const { data } = dataBooking?.data;
         const mapDataPatient = data.map(item => {
           let name = '';
@@ -156,10 +156,11 @@ const AppointmentSchedule = () => {
             }}
           >Chi tiết</Button>
           {
-            record.status !== 'DONE' && (
+            record.status === 'CONFIRMED' ? (
               <Button
                 // disabled={!moment('2014-03-24T01:15:00.000Z').isSame(moment('2014-03-24T01:14:00.000Z'))}
-                disabled={!(moment(dateNow).isSame(moment(selectDate)))} //đÚng
+                // disabled={!(moment(dateNow).isSame(moment(selectDate)))} //sai
+                disabled={!(moment(moment(dateNow).format('YYYY-MM-DDT00:00:00')).isSame(moment(selectDate)))} //đúng, tất cả lịch trong ngày đều có thể gửi đc, ko cần dúngs khung giờ
                 className="btn_send"
                 style={{
                   minWidth: '50px'
@@ -171,6 +172,10 @@ const AppointmentSchedule = () => {
                   setModalExamination(true);
                 }}
               >Gửi đơn thuốc</Button>
+            ) : (
+              <Tag color='success' key={record.status}>
+                Đã khám xong
+              </Tag>
             )
           }
         </Space>
@@ -178,6 +183,9 @@ const AppointmentSchedule = () => {
     }
   ];
 
+  console.log('check: ', !(moment(moment(dateNow).format('YYYY-MM-DDT00:00:00')).isSame(moment(selectDate))));
+  console.log('dateNow: ', moment(dateNow));
+  console.log('selectDate: ', selectDate);
   return (
     <div>
       <h1 className="title">

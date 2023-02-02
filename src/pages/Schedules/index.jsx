@@ -171,16 +171,28 @@ const Schedules = () => {
       width: 50,
       align: 'center',
       render: (_, record) => {
-        let color = '';
-        if (record.status === 'ACTIVE') color = 'green';
-        else if (record.status === 'CANCLE') color = 'red';
-        else if (record.status === 'WAITING') color = 'orange';
-        else color = 'red';
+        let color = '', text = '';
+        if (record.status === 'ACTIVE') {
+          color = 'green';
+          text = 'Hoạt động';
+        }
+        else if (record.status === 'CANCLE') {
+          color = 'red';
+          text = 'Đã huỷ';
+        }
+        else if (record.status === 'WAITING') {
+          color = 'orange';
+          text = 'Đang chờ';
+        }
+        else {
+          color = 'red';
+          text = 'Lỗi';
+        }
 
         return (
           <>
             <Tag color={color} key={record.status}>
-              {record.status}
+              {text}
             </Tag>
           </>
         )
